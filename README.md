@@ -30,6 +30,9 @@
 
 * **[–]** add location information
 * **[–]** parse multiple statements
+* **[–]** at present, comments and stuff the parser doesn't understand are left out of the result
+  which constitues silent failure; ensure 100% source code coverage (whitespace may be left out,
+  but not comments and also not unsyntactic garbage)
 
 
 
