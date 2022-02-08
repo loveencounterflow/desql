@@ -154,7 +154,7 @@ _show_antler_tree = ( query, tree, parent, level, R ) ->
   for node in tree.children
     id++
     #.......................................................................................................
-    if true then do =>
+    if false then do =>
       whisper '^5600-2^', '------------------------------------------------------------'
       for k, v of node
         continue if k in [ '_parent', 'invokingState', '_parts', 'children', '_hints', '_errorCapturingIdentifier', ]
@@ -180,22 +180,27 @@ _show_antler_tree = ( query, tree, parent, level, R ) ->
     type        = type_of_antler_node node
     R[ type ]  ?= node
     type_entry  = antler_types[ type ]
-    position = position_from_node node
-    debug '^5600-1^', position, rpr query[ position.start.idx .. position.stop.idx ]
+    position    = position_from_node node
+    text        = query[ position.start.idx .. position.stop.idx ]
     switch type_entry_type = type_of type_entry
       when 'undefined'
-        warn '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text )
+        warn '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{rpr position} #{CND.gold rpr shorten text} "
       when 'null'
-        whisper '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( rpr node.text )
+        whisper '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{rpr position} #{CND.gold rpr shorten text} "
       when 'function'
         whisper '^5600-14^', '------------------------------------------------------------'
-        info '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text )
+        info '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{rpr position} #{CND.gold rpr shorten text} "
         debug '^4656-1^', type_entry node
       else
-        warn CND.reverse '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text ) + " unknown type entry type #{rpr type_entry_type}"
+        warn CND.reverse '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{rpr position} #{CND.gold rpr shorten text} " + " unknown type entry type #{rpr type_entry_type}"
     if node.children?
       _show_antler_tree query, node, id, level + 1, R
   return R
+
+#-----------------------------------------------------------------------------------------------------------
+shorten = ( text ) ->
+  return text unless text.length > 20
+  return text[ .. 9 ] + '...' + text[ text.length - 9 ... ]
 
 #-----------------------------------------------------------------------------------------------------------
 position_from_node = ( node ) ->
