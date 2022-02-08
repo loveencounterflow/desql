@@ -1,0 +1,33 @@
+{
+  "name": "sequel",
+  "version": "0.0.0",
+  "description": "An SQL parser",
+  "main": "lib/main.js",
+  "scripts": {
+    "test": "see https://github.com/loveencounterflow/hengist/tree/master/dev/sequel"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loveencounterflow/sequel.git"
+  },
+  "keywords": [
+    "sql",
+    "parser",
+    "token",
+    "tokenizer",
+    "db",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/loveencounterflow/sequel/issues"
+  },
+  "homepage": "https://github.com/loveencounterflow/sequel#readme",
+  "dependencies": {
+    "cnd": "^9.2.2",
+    "intertype": "^7.7.0",
+    "just-snake-case": "^3.0.1",
+    "rhombic": "^0.19.0"
+  }
+}
