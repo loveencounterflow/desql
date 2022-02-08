@@ -91,7 +91,6 @@ queries = [
       order by from_table_name, fk_id, fk_idx;"""
   SQL"create table d ( x integer ) strict;"
   SQL"""create table d ( x "any" );"""
-  SQL"select a from t;"
   SQL"insert into products ( nr, name ) values ( 1234, 'frob' );"
   SQL"select a, b from s join t using ( c );"
   SQL"select t1.a as alias, t2.b from s as t1 join t as t2 using ( c );"
@@ -101,10 +100,8 @@ queries = [
   SQL"""select
     42 as d;
     select 'helo world' as greetings;"""
+  SQL"select xxxxx /* comment */ from t where x = $x;"
   ]
-
-
-
 
 #-----------------------------------------------------------------------------------------------------------
 @demo_rhombic_antlr = ->
@@ -119,6 +116,7 @@ queries = [
   # for query in [ SQL"""select d + e + f( x ) as "d1" from a as a1;""", ]
   # for query in [ SQL"""select * from a left join b where k > 1 order by m limit 1;""", ]
   # for query in [ SQL"SELECT 42 as a;", ]
+  # for query in [ queries[ 1 ], ]
   for query in [ queries[ queries.length - 1 ], ]
     echo query
     X.banner query
@@ -138,7 +136,7 @@ type_of_antler_node = ( node ) ->
 
 #-----------------------------------------------------------------------------------------------------------
 show_antler_tree = ( tree ) ->
-  objects_by_type = _show_antler_tree { children: [ tree, ], }, 0, {}
+  objects_by_type = _show_antler_tree { children: [ tree, ], }, 0, 0, {}
   types           = ( k for k of objects_by_type ).sort()
   # for type in types
   #   d     = objects_by_type[ type ]
@@ -149,44 +147,48 @@ show_antler_tree = ( tree ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-_show_antler_tree = ( tree, level, R ) ->
+_show_antler_tree = ( tree, parent, level, R ) ->
   dent  = '  '.repeat level
   # debug '^4656-1^' + dent + ( type_of tree ) + ' ' + rpr tree.text
+  id    = parent
   for node in tree.children
+    id++
     #.......................................................................................................
-    # do =>
-    #   for k, v of node
-    #     continue unless v?
-    #     help '^5600-3^', k, ( type_of v ), ( Object.keys v )
-    #   if node._start?
-    #     info '^5600-4^', "node._start?.index", node._start?.index
-    #     info '^5600-5^', "node._start?._line", node._start?._line
-    #     info '^5600-6^', "node._start?._charPositionInLine", node._start?._charPositionInLine
-    #     info '^5600-7^', "node._stop?._line", node._stop?._line
-    #     info '^5600-8^', "node._stop?._charPositionInLine", node._stop?._charPositionInLine
-    #   if node._symbol?
-    #     info '^5600-9^', "type_of node._symbol.start", type_of node._symbol.start
-    #     info '^5600-9^', "node._symbol.start", node._symbol.start
-    #     info '^5600-9^', "node._symbol.stop", node._symbol.stop
-    #     info '^5600-9^', "node._symbol.line", node._symbol.line
-    #     info '^5600-9^', "node._symbol._charPositionInLine", node._symbol._charPositionInLine
+    if false then do =>
+      whisper '^5600-2^', '------------------------------------------------------------'
+      for k, v of node
+        continue if k in [ '_parent', 'invokingState', '_parts', 'children', '_hints', '_errorCapturingIdentifier', ]
+        continue unless v?
+        help '^5600-3^', k, ( type_of v ), ( Object.keys v )
+      if node._start?
+        info '^5600-4^', "node._start?.index", node._start?.index
+        info '^5600-5^', "node._start?._line", node._start?._line
+        info '^5600-6^', "node._start?._charPositionInLine", node._start?._charPositionInLine
+        info '^5600-7^', "node._stop?._line", node._stop?._line
+        info '^5600-8^', "node._stop?._charPositionInLine", node._stop?._charPositionInLine
+      if node._symbol?
+        info '^5600-9^', "type_of node._symbol.start", type_of node._symbol.start
+        info '^5600-10^', "node._symbol.start", node._symbol.start
+        info '^5600-11^', "node._symbol.stop", node._symbol.stop
+        info '^5600-12^', "node._symbol.line", node._symbol.line
+        info '^5600-13^', "node._symbol._charPositionInLine", node._symbol._charPositionInLine
     #.......................................................................................................
     type        = type_of_antler_node node
     R[ type ]  ?= node
     type_entry  = antler_types[ type ]
     switch type_entry_type = type_of type_entry
       when 'undefined'
-        warn '^4656-1^' + dent + type + ' ' + ( CND.gold rpr node.text )
+        warn '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text )
       when 'null'
-        whisper '^4656-1^' + dent + type + ' ' + ( rpr node.text )
+        whisper '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( rpr node.text )
       when 'function'
-        whisper '^5600-2^', '------------------------------------------------------------'
-        info '^4656-1^' + dent + type + ' ' + ( CND.gold rpr node.text )
+        whisper '^5600-14^', '------------------------------------------------------------'
+        info '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text )
         debug '^4656-1^', type_entry node
       else
-        warn CND.reverse '^4656-1^' + dent + type + ' ' + ( CND.gold rpr node.text ) + " unknown type entry type #{rpr type_entry_type}"
+        warn CND.reverse '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text ) + " unknown type entry type #{rpr type_entry_type}"
     if node.children?
-      _show_antler_tree node, level + 1, R
+      _show_antler_tree node, id, level + 1, R
   return R
 
 #-----------------------------------------------------------------------------------------------------------
