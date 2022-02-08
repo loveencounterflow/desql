@@ -1,14 +1,14 @@
 {
-  "name": "sequel",
+  "name": "desql",
   "version": "0.0.0",
   "description": "An SQL parser",
   "main": "lib/main.js",
   "scripts": {
-    "test": "see https://github.com/loveencounterflow/hengist/tree/master/dev/sequel"
+    "test": "see https://github.com/loveencounterflow/hengist/tree/master/dev/desql"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/loveencounterflow/sequel.git"
+    "url": "git+https://github.com/loveencounterflow/desql.git"
   },
   "keywords": [
     "sql",
@@ -21,9 +21,9 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/loveencounterflow/sequel/issues"
+    "url": "https://github.com/loveencounterflow/desql/issues"
   },
-  "homepage": "https://github.com/loveencounterflow/sequel#readme",
+  "homepage": "https://github.com/loveencounterflow/desql#readme",
   "dependencies": {
     "cnd": "^9.2.2",
     "guy": "^4.0.0",
