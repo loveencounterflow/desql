@@ -100,7 +100,7 @@ queries = [
   SQL"""select
     42 as d;
     select 'helo world' as greetings;"""
-  SQL"select xxxxx /* comment */ from t where x = $x;"
+  SQL"""select xxxxx /* comment */ from t where "x" = $x;"""
   ]
 
 #-----------------------------------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ queries = [
     X.banner query
     q = antlr.parse query, parser_cfg
     debug CATALOG.all_keys_of q
-    show_antler_tree q.tree
+    show_antler_tree query, q.tree
     # debug type_of q
     # info q.getUsedTables()
   return null
@@ -135,8 +135,8 @@ type_of_antler_node = ( node ) ->
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-show_antler_tree = ( tree ) ->
-  objects_by_type = _show_antler_tree { children: [ tree, ], }, 0, 0, {}
+show_antler_tree = ( query, tree ) ->
+  objects_by_type = _show_antler_tree query, { children: [ tree, ], }, 0, 0, {}
   types           = ( k for k of objects_by_type ).sort()
   # for type in types
   #   d     = objects_by_type[ type ]
@@ -147,25 +147,29 @@ show_antler_tree = ( tree ) ->
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-_show_antler_tree = ( tree, parent, level, R ) ->
+_show_antler_tree = ( query, tree, parent, level, R ) ->
   dent  = '  '.repeat level
   # debug '^4656-1^' + dent + ( type_of tree ) + ' ' + rpr tree.text
   id    = parent
   for node in tree.children
     id++
     #.......................................................................................................
-    if false then do =>
+    if true then do =>
       whisper '^5600-2^', '------------------------------------------------------------'
       for k, v of node
         continue if k in [ '_parent', 'invokingState', '_parts', 'children', '_hints', '_errorCapturingIdentifier', ]
         continue unless v?
         help '^5600-3^', k, ( type_of v ), ( Object.keys v )
       if node._start?
-        info '^5600-4^', "node._start?.index", node._start?.index
+        # info '^5600-4^', "node._start?.index", node._start?.index
         info '^5600-5^', "node._start?._line", node._start?._line
         info '^5600-6^', "node._start?._charPositionInLine", node._start?._charPositionInLine
-        info '^5600-7^', "node._stop?._line", node._stop?._line
-        info '^5600-8^', "node._stop?._charPositionInLine", node._stop?._charPositionInLine
+        info '^5600-6^', "node._start?.start", node._start?.start
+        info '^5600-6^', "node._start?.stop", node._start?.stop
+        info '^5600-6^', "node._stop?.start", node._stop?.start
+        info '^5600-6^', "node._stop?.stop", node._stop?.stop
+        # info '^5600-7^', "node._stop?._line", node._stop?._line
+        # info '^5600-8^', "node._stop?._charPositionInLine", node._stop?._charPositionInLine
       if node._symbol?
         info '^5600-9^', "type_of node._symbol.start", type_of node._symbol.start
         info '^5600-10^', "node._symbol.start", node._symbol.start
@@ -176,6 +180,8 @@ _show_antler_tree = ( tree, parent, level, R ) ->
     type        = type_of_antler_node node
     R[ type ]  ?= node
     type_entry  = antler_types[ type ]
+    position = position_from_node node
+    debug '^5600-1^', position, rpr query[ position.start.idx .. position.stop.idx ]
     switch type_entry_type = type_of type_entry
       when 'undefined'
         warn '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text )
@@ -188,8 +194,33 @@ _show_antler_tree = ( tree, parent, level, R ) ->
       else
         warn CND.reverse '^4656-1^' + dent + " #{id} (#{parent}) #{type} " + ( CND.gold rpr node.text ) + " unknown type entry type #{rpr type_entry_type}"
     if node.children?
-      _show_antler_tree node, id, level + 1, R
+      _show_antler_tree query, node, id, level + 1, R
   return R
+
+#-----------------------------------------------------------------------------------------------------------
+position_from_node = ( node ) ->
+  if node._symbol?
+    start     =
+      idx:  node._symbol.start
+      lnr:  node._symbol._line
+      col:  node._symbol._charPositionInLine + 1
+    stop      =
+      idx:  node._symbol.stop
+      lnr:  node._symbol._line
+      col:  node._symbol._charPositionInLine + 1 + node._symbol.stop - node._symbol.start
+  else if node._start?
+    start     =
+      idx:  node._start.start
+      lnr:  node._start._line
+      col:  node._start._charPositionInLine + 1
+    stop      =
+      idx:  node._stop.stop
+      lnr:  node._stop._line
+      col:  node._stop._charPositionInLine + 1
+  else
+    start     = {}
+    stop      = {}
+  return { start, stop, }
 
 #-----------------------------------------------------------------------------------------------------------
 antler_types =
@@ -198,15 +229,11 @@ antler_types =
   #.........................................................................................................
   select_clause: ( node ) ->
     terminal  = node.children[ 0 ]
-    idx1      = terminal._symbol.start
-    idx2      = terminal._symbol.stop
-    lnr       = terminal._symbol._line
-    col       = terminal._symbol._charPositionInLine + 1
     unless ( type = type_of_antler_node terminal ) is 'terminal'
       throw new Error "unexpected type #{rpr type}"
     unless ( /^select$/i  ).test ( text = terminal.text )
       throw new Error "unexpected terminal #{rpr text}"
-    debug '^4353^', { type, text, idx1, idx2, lnr, col, subs: [], }
+    debug '^4353^', { type, text, ( position_from_node terminal )..., subs: [], }
   #.........................................................................................................
   regular_query_specification:  null
   query_primary_default:        null
