@@ -2,12 +2,14 @@ lockfileVersion: 5.3
 
 specifiers:
   cnd: ^9.2.2
+  guy: ^4.0.0
   intertype: ^7.7.0
   just-snake-case: ^3.0.1
   rhombic: ^0.19.0
 
 dependencies:
   cnd: 9.2.2
+  guy: 4.0.0
   intertype: 7.7.0
   just-snake-case: 3.0.1
   rhombic: 0.19.0
@@ -122,6 +124,14 @@ packages:
       get-intrinsic: 1.1.1
     dev: false
 
+  /guy/4.0.0:
+    resolution: {integrity: sha512-unob1iMEmXrotWQYMeW/uOAJS4DXv0C5njlE1JboIwsc9wwd3goXN4ICdGxFw1x61WGyRH4lNWTRltj5o5xfBA==}
+    dependencies:
+      cnd: 9.2.2
+      intertype: 7.6.7
+      letsfreezethat: 3.1.0
+    dev: false
+
   /has-bigints/1.0.1:
     resolution: {integrity: sha512-LSBS2LjbNBTf6287JEbEzvJgftkF5qFkmCo9hDRpAzKhUOlJ+hx8dd4USs00SgsUNwc4617J9ki5YtEClM2ffA==}
     dev: false
@@ -156,6 +166,12 @@ packages:
       get-intrinsic: 1.1.1
       has: 1.0.3
       side-channel: 1.0.4
+    dev: false
+
+  /intertype/7.6.7:
+    resolution: {integrity: sha512-vBgYabqxX3fLa9f0Z3QeXgYszadAGdAHXdLcdQc5ZxZSG5CmbJCdYcudZLYtgmNo8epQag8zzyg7wwx+OD5J8g==}
+    dependencies:
+      multimix: 5.0.0
     dev: false
 
   /intertype/7.7.0:
@@ -274,6 +290,10 @@ packages:
 
   /just-snake-case/3.0.1:
     resolution: {integrity: sha512-h2fbGA9baefofrXBowSWk38a0oTvh+8pdxYv8eqtblrYHqehkG+D9gEWCj9XmNOSFOX+O493ciZa4fFRzA9b1A==}
+    dev: false
+
+  /letsfreezethat/3.1.0:
+    resolution: {integrity: sha512-jJ1nvvQi6unW0WifjNPMIb64Byom0EXzSKWFYA++EpyjK3qv1J2pqeSoEJ61tGJoNG0GoNjPoeLYhxW16riZaA==}
     dev: false
 
   /multimix/5.0.0:
