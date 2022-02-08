@@ -28,7 +28,8 @@
 
 ## To Do
 
-* **[–]** add location information
+* **[+]** add location information
+* **[–]** fix (many) faulty location data (stop equals or precedes start line, column NR)
 * **[–]** parse multiple statements
 * **[–]** at present, comments and stuff the parser doesn't understand are left out of the result
   which constitues silent failure; ensure 100% source code coverage (whitespace may be left out,
