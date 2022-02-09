@@ -46,6 +46,7 @@ class @Desql
   #---------------------------------------------------------------------------------------------------------
   _procure_infrastructure: ->
     ### TAINT check if tables exist ###
+    @db.create_stdlib()
     @db SQL"""
       create table queries (
           qid     integer not null primary key,
