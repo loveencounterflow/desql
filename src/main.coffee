@@ -86,16 +86,24 @@ class @Desql
         where pos1 is not null;"""
     #.......................................................................................................
     @db SQL"""
-      create view coverage_holes_1 as select
+      create view _coverage_holes_1 as select
           *,
-          substring( q.query, n.value, 1 ) as chr
-        from
-          queries as q,
-          std_generate_series( 1, q.length ) as n
-        where not exists (
-          select 1 from _coverage_1 as c
-          where c.qid = q.qid and n.value between c.pos1 and c.pos2
-          /* and not std_re_is_match( substring( q.query, n.value, 1 ), '\s' ) */ )
+          c.pos2 + 1                                                      as nxt_pos1,
+          lead( c.pos1 ) over w - 1                                       as nxt_pos2
+        from _coverage_1 as c
+        window w as ( partition by c.qid order by pos1 );"""
+    #.......................................................................................................
+    @db SQL"""
+      create view coverage_holes as select
+          c.qid                                                           as qid,
+          c.id                                                            as id,
+          c.xtra                                                          as xtra,
+          c.nxt_pos1                                                      as pos1,
+          c.nxt_pos2                                                      as pos2,
+          substring( q.query, c.nxt_pos1, c.nxt_pos2 - c.nxt_pos1 + 1 )   as txt
+        from _coverage_holes_1 as c
+        join queries as q using ( qid )
+        where c.nxt_pos1 <= c.nxt_pos2
       ;"""
     #.......................................................................................................
     @db SQL"""
