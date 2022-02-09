@@ -47,7 +47,12 @@ class @Desql
   _procure_infrastructure: ->
     ### TAINT check if tables exist ###
     @db SQL"""
+      create table queries (
+          qid     integer not null primary key,
+          length  integer generated always as ( length( query ) ),
+          query   text    not null );
       create table raw_nodes (
+          qid     integer not null,
           id      integer not null,
           xtra    integer not null default 1,
           upid    integer,
