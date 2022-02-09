@@ -58,8 +58,8 @@ class @Desql
           xtra    integer not null default 1,
           upid    integer,
           type    text    not null,
-          idx1    integer,
-          idx2    integer,
+          pos1    integer,
+          pos2    integer,
           lnr1    integer,
           col1    integer,
           lnr2    integer,
@@ -74,12 +74,12 @@ class @Desql
           n.qid                                                 as qid,
           n.id                                                  as id,
           n.xtra                                                as xtra,
-          n.idx1                                                as idx1,
-          n.idx2                                                as idx2,
-          substring( q.query, n.idx1 + 1, n.idx2 - n.idx1 + 1 ) as txt
+          n.pos1                                                as pos1,
+          n.pos2                                                as pos2,
+          substring( q.query, n.pos1, n.pos2 - n.pos1 + 1 )     as txt
         from raw_nodes as n
         join queries as q using ( qid )
-        where idx1 is not null;"""
+        where pos1 is not null;"""
     @db SQL"""
       create view coverage_holes_1 as select
           *,
@@ -89,14 +89,14 @@ class @Desql
           std_generate_series( 1, q.length ) as n
         where not exists (
           select 1 from _coverage_1 as c
-          where c.qid = q.qid and n.value between c.idx1 + 1 and c.idx2 + 1
+          where c.qid = q.qid and n.value between c.pos1 and c.pos2
           /* and not std_re_is_match( substring( q.query, n.value, 1 ), '\s' ) */ )
       ;"""
     @db SQL"""
       create view coverage as select
           *
         from _coverage_1
-        order by idx1;"""
+        order by pos1;"""
     return null
 
   #---------------------------------------------------------------------------------------------------------
@@ -109,11 +109,11 @@ class @Desql
         returning:    '*'
       #.....................................................................................................
       insert_regular_node: @db.prepare SQL"""
-        insert into raw_nodes ( qid, id, upid, type, idx1, idx2, lnr1, col1, lnr2, col2 )
+        insert into raw_nodes ( qid, id, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
           values (
             $qid,
             ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
-            $upid, $type, $idx1, $idx2, $lnr1, $col1, $lnr2, $col2 )
+            $upid, $type, $pos1, $pos2, $lnr1, $col1, $lnr2, $col2 )
           returning *;"""
       #.....................................................................................................
     return null
@@ -134,8 +134,8 @@ class @Desql
       type            = @_type_of_antler_node branch
       position        = @_position_from_branch branch
       txt             = null
-      # txt             = query[ position.idx1 .. position.idx2 ] if position.idx1?
-      # txt             = ( Array.from query )[ position.idx1 .. position.idx2 ].join '' if position.idx1?
+      # txt             = query[ position.pos1 .. position.pos2 ] if position.pos1?
+      # txt             = ( Array.from query )[ position.pos1 .. position.pos2 ].join '' if position.pos1?
       upid            = parent?.id ? null
       flat_node       = { qid, upid, type, position..., }
       # flat_node.txt   = if txt is '' then null else txt
@@ -163,18 +163,18 @@ class @Desql
   #---------------------------------------------------------------------------------------------------------
   _position_from_branch: ( branch ) ->
     if branch._symbol?
-      idx1  = branch._symbol.start
+      pos1  = branch._symbol.start + 1
       lnr1  = branch._symbol._line
       col1  = branch._symbol._charPositionInLine + 1
-      idx2  = branch._symbol.stop
+      pos2  = branch._symbol.stop  + 1
       lnr2  = branch._symbol._line
       col2  = branch._symbol._charPositionInLine + 1 + branch._symbol.stop - branch._symbol.start
     else
-      idx1  = null
+      pos1  = null
       lnr1  = null
       col1  = null
-      idx2  = null
+      pos2  = null
       lnr2  = null
       col2  = null
-    return { idx1, lnr1, col1, idx2, lnr2, col2, }
+    return { pos1, lnr1, col1, pos2, lnr2, col2, }
 
