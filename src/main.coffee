@@ -87,7 +87,8 @@ class @Desql
       doubleQuotedIdentifier: true
     antlr           = { children: [ ( ANTLR.parse query, parser_cfg ).tree, ], }
     R               = { type: 'query', nodes: [], }
-    @_build_tree query, antlr, null, 0, R
+    { qid, }        = @statements.insert_query.get { query, }
+    @_build_tree qid, query, antlr, null, 0, R
     return R
 
   #---------------------------------------------------------------------------------------------------------
