@@ -65,7 +65,8 @@ class @Desql
           lnr2    integer,
           col2    integer,
           txt     text,
-        primary key ( id, xtra ) -- ,
+        primary key ( qid, id, xtra ),
+        foreign key ( qid ) references queries
         -- foreign key ( upid ) references raw_nodes ( id ) DEFERRABLE INITIALLY DEFERRED
         );"""
     return null
@@ -92,21 +93,22 @@ class @Desql
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _build_tree: ( query, antlr, parent, level, tree ) ->
-    dent  = '  '.repeat level
+  _build_tree: ( qid, query, antlr, parent, level, tree ) ->
     for branch in antlr.children
       type            = @_type_of_antler_node branch
       position        = @_position_from_branch branch
       txt             = null
-      txt             = query[ position.idx1 .. position.idx2 ] if position.idx1?
+      # txt             = query[ position.idx1 .. position.idx2 ] if position.idx1?
+      # txt             = ( Array.from query )[ position.idx1 .. position.idx2 ].join '' if position.idx1?
       upid            = parent?.id ? null
-      flat_node       = { upid, type, position..., }
-      flat_node.txt   = if txt is '' then null else txt
+      flat_node       = { qid, upid, type, position..., }
+      # flat_node.txt   = if txt is '' then null else txt
       @db SQL"savepoint svp_name;"
       flat_node       = @statements.insert_regular_node.get flat_node
+      # dent  = '  '.repeat level; debug '^9876^', dent + rpr flat_node
       node            = { flat_node..., nodes: [], }
       if branch.children?
-        @_build_tree query, branch, flat_node, level + 1, node
+        @_build_tree qid, query, branch, flat_node, level + 1, node
       if ( node.type isnt 'terminal' ) and ( node.nodes.length is 0 )
         @db SQL"rollback transaction to savepoint svp_name;" # , { svp_name, }
       else
