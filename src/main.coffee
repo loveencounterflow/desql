@@ -36,6 +36,7 @@ SQL                       = String.raw
 xrpr                      = ( x ) -> ( require 'util' ).inspect x, {
   colors: true, depth: Infinity, maxArrayLength: null, breakLength: Infinity, }
 to_snake_case             = require 'just-snake-case'
+{ antlr: ANTLR          } = require 'rhombic'
 
 
 #===========================================================================================================
@@ -106,11 +107,6 @@ queries = [
 #-----------------------------------------------------------------------------------------------------------
 @demo_rhombic_antlr = ->
   CATALOG = require '../../../jzr-old/multimix/lib/cataloguing'
-  { antlr  } = require 'rhombic'
-  parser_cfg =
-    doubleQuotedIdentifier: true
-  lineage_cfg =
-    positionalRefsEnabled: true
   # q = antlr.parse "SELECT * FROM abc join users as u;", parser_cfg
   # for query in [ SQL"""select d as "d1" from a as a1;""", ]
   # for query in [ SQL"""select d + e + f( x ) as "d1" from a as a1;""", ]
@@ -120,11 +116,7 @@ queries = [
   for query in [ queries[ queries.length - 1 ], ]
     echo query
     X.banner query
-    q = antlr.parse query, parser_cfg
-    debug CATALOG.all_keys_of q
-    show_antler_tree query, q.tree
-    # debug type_of q
-    # info q.getUsedTables()
+    build_tree query
   return null
 
 #-----------------------------------------------------------------------------------------------------------
@@ -135,68 +127,73 @@ type_of_antler_node = ( node ) ->
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-show_antler_tree = ( query, tree ) ->
-  objects_by_type = _show_antler_tree query, { children: [ tree, ], }, 0, 0, {}
-  types           = ( k for k of objects_by_type ).sort()
-  # for type in types
-  #   d     = objects_by_type[ type ]
-  #   keys  = ( k for k of d when not k.startsWith '_' ).sort()
-  #   urge type, keys
-    # if d._line?
-    #   debug '^5600-1^', ( type_of d._line ), Object.keys d._line
+build_tree = ( query ) ->
+  parser_cfg      =
+    doubleQuotedIdentifier: true
+  antlr           = { children: [ ( ANTLR.parse query, parser_cfg ).tree, ], }
+  R               = { type: 'query', nodes: [], }
+  series          = []
+  objects_by_type = _build_tree query, antlr, 0, 0, series, R
+  # types           = ( k for k of objects_by_type ).sort()
+  debug '^4345^', R
+  show_series query, series
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+show_series = ( query, series ) ->
+  s = []
+  for node in series
+    s.push
+      id:         node.id
+      upid:       node.upid
+      type:       node.type
+      start_idx:  node.start?.idx ? null
+      start_lnr:  node.start?.lnr ? null
+      start_col:  node.start?.col ? null
+      stop_idx:   node.stop?.idx ? null
+      stop_lnr:   node.stop?.lnr ? null
+      stop_col:   node.stop?.col ? null
+      node_count: node.node_count
+      text:       node.text
+  X.tabulate query, s
   return null
 
 #-----------------------------------------------------------------------------------------------------------
-_show_antler_tree = ( query, tree, parent, level, R ) ->
+_build_tree = ( query, antlr, upid, level, series, tree ) ->
   dent  = '  '.repeat level
-  # debug '^4656-1^' + dent + ( type_of tree ) + ' ' + rpr tree.text
-  id    = parent
-  for node in tree.children
+  id    = upid
+  for branch in antlr.children
     id++
-    #.......................................................................................................
-    if false then do =>
-      whisper '^5600-2^', '------------------------------------------------------------'
-      for k, v of node
-        continue if k in [ '_parent', 'invokingState', '_parts', 'children', '_hints', '_errorCapturingIdentifier', ]
-        continue unless v?
-        help '^5600-3^', k, ( type_of v ), ( Object.keys v )
-      if node._start?
-        # info '^5600-4^', "node._start?.index", node._start?.index
-        info '^5600-5^', "node._start?._line", node._start?._line
-        info '^5600-6^', "node._start?._charPositionInLine", node._start?._charPositionInLine
-        info '^5600-6^', "node._start?.start", node._start?.start
-        info '^5600-6^', "node._start?.stop", node._start?.stop
-        info '^5600-6^', "node._stop?.start", node._stop?.start
-        info '^5600-6^', "node._stop?.stop", node._stop?.stop
-        # info '^5600-7^', "node._stop?._line", node._stop?._line
-        # info '^5600-8^', "node._stop?._charPositionInLine", node._stop?._charPositionInLine
-      if node._symbol?
-        info '^5600-9^', "type_of node._symbol.start", type_of node._symbol.start
-        info '^5600-10^', "node._symbol.start", node._symbol.start
-        info '^5600-11^', "node._symbol.stop", node._symbol.stop
-        info '^5600-12^', "node._symbol.line", node._symbol.line
-        info '^5600-13^', "node._symbol._charPositionInLine", node._symbol._charPositionInLine
-    #.......................................................................................................
-    type          = type_of_antler_node node
-    R[ type ]    ?= node
-    type_entry    = antler_types[ type ]
-    position      = position_from_node node
-    position_txt  = "(#{position.start.lnr}:#{position.start.col}–#{position.stop.lnr}:#{position.stop.col})"
-    text          = query[ position.start.idx .. position.stop.idx ]
+    type            = type_of_antler_node branch
+    type_entry      = antler_types[ type ]
+    position        = position_from_node branch
+    if position?
+      position_txt    = "(#{position.start.lnr}:#{position.start.col}–#{position.stop.lnr}:#{position.stop.col})"
+      text            = query[ position.start.idx .. position.stop.idx ]
+    else
+      position_txt    = ''
+      text            = ''
+    flat_node       = { id, upid, type, position..., }
+    flat_node.text  = if text is '' then null else text
+    node            = { flat_node..., nodes: [], }
+    series.push flat_node
+    tree.nodes.push node
     switch type_entry_type = type_of type_entry
       when 'undefined'
-        warn '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{position_txt} #{CND.gold rpr shorten text} "
+        warn '^4656-1^' + dent + " #{id} (#{upid}) #{type} #{position_txt} #{CND.gold rpr shorten text} "
       when 'null'
-        whisper '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{position_txt} #{CND.gold rpr shorten text} "
+        whisper '^4656-1^' + dent + " #{id} (#{upid}) #{type} #{position_txt} #{CND.gold rpr shorten text} "
       when 'function'
         whisper '^5600-14^', '------------------------------------------------------------'
-        info '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{position_txt} #{CND.gold rpr shorten text} "
-        debug '^4656-1^', type_entry node
+        info '^4656-1^' + dent + " #{id} (#{upid}) #{type} #{position_txt} #{CND.gold rpr shorten text} "
+        debug '^4656-1^', type_entry branch
       else
-        warn CND.reverse '^4656-1^' + dent + " #{id} (#{parent}) #{type} #{position_txt} #{CND.gold rpr shorten text} " + " unknown type entry type #{rpr type_entry_type}"
-    if node.children?
-      _show_antler_tree query, node, id, level + 1, R
-  return R
+        warn CND.reverse '^4656-1^' + dent + " #{id} (#{upid}) #{type} #{position_txt} #{CND.gold rpr shorten text} " + " unknown type entry type #{rpr type_entry_type}"
+    if branch.children?
+      _build_tree query, branch, id, level + 1, series, node
+    flat_node.node_count = node.nodes.length
+    delete node.nodes if node.nodes.length is 0
+  return null
 
 #-----------------------------------------------------------------------------------------------------------
 shorten = ( text ) ->
@@ -214,19 +211,17 @@ position_from_node = ( node ) ->
       idx:  node._symbol.stop
       lnr:  node._symbol._line
       col:  node._symbol._charPositionInLine + 1 + node._symbol.stop - node._symbol.start
-  else if node._start?
-    start     =
-      idx:  node._start.start
-      lnr:  node._start._line
-      col:  node._start._charPositionInLine + 1
-    stop      =
-      idx:  node._stop.stop
-      lnr:  node._stop._line
-      col:  node._stop._charPositionInLine + 1
-  else
-    start     = {}
-    stop      = {}
-  return { start, stop, }
+    return { start, stop, }
+  return null
+  # else if node._start?
+  #   start     =
+  #     idx:  node._start.start
+  #     lnr:  node._start._line
+  #     col:  node._start._charPositionInLine + 1
+  #   stop      =
+  #     idx:  node._stop.stop
+  #     lnr:  node._stop._line
+  #     col:  node._stop._charPositionInLine + 1
 
 #-----------------------------------------------------------------------------------------------------------
 antler_types =
@@ -239,7 +234,7 @@ antler_types =
       throw new Error "unexpected type #{rpr type}"
     unless ( /^select$/i  ).test ( text = terminal.text )
       throw new Error "unexpected terminal #{rpr text}"
-    debug '^4353^', { type, text, ( position_from_node terminal )..., subs: [], }
+    debug '^4353^', { type, text, ( position_from_node terminal )..., nodes: [], }
   #.........................................................................................................
   regular_query_specification:  null
   query_primary_default:        null
