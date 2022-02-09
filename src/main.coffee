@@ -47,11 +47,14 @@ class @Desql
   _procure_infrastructure: ->
     ### TAINT check if tables exist ###
     @db.create_stdlib()
+    #.......................................................................................................
     @db SQL"""
       create table queries (
           qid     integer not null primary key,
           length  integer generated always as ( length( query ) ),
-          query   text    not null );
+          query   text    not null );"""
+    #.......................................................................................................
+    @db SQL"""
       create table raw_nodes (
           qid     integer not null,
           id      integer not null,
@@ -69,6 +72,7 @@ class @Desql
         foreign key ( qid ) references queries
         -- foreign key ( upid ) references raw_nodes ( id ) DEFERRABLE INITIALLY DEFERRED
         );"""
+    #.......................................................................................................
     @db SQL"""
       create view _coverage_1 as select
           n.qid                                                 as qid,
@@ -80,6 +84,7 @@ class @Desql
         from raw_nodes as n
         join queries as q using ( qid )
         where pos1 is not null;"""
+    #.......................................................................................................
     @db SQL"""
       create view coverage_holes_1 as select
           *,
@@ -92,11 +97,13 @@ class @Desql
           where c.qid = q.qid and n.value between c.pos1 and c.pos2
           /* and not std_re_is_match( substring( q.query, n.value, 1 ), '\s' ) */ )
       ;"""
+    #.......................................................................................................
     @db SQL"""
       create view coverage as select
           *
         from _coverage_1
         order by pos1;"""
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
