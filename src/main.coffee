@@ -69,17 +69,53 @@ class @Desql
         foreign key ( qid ) references queries
         -- foreign key ( upid ) references raw_nodes ( id ) DEFERRABLE INITIALLY DEFERRED
         );"""
+    @db SQL"""
+      create view _coverage_1 as select
+          n.qid                                                 as qid,
+          n.id                                                  as id,
+          n.xtra                                                as xtra,
+          n.idx1                                                as idx1,
+          n.idx2                                                as idx2,
+          substring( q.query, n.idx1 + 1, n.idx2 - n.idx1 + 1 ) as txt
+        from raw_nodes as n
+        join queries as q using ( qid )
+        where idx1 is not null;"""
+    @db SQL"""
+      create view coverage_holes_1 as select
+          *,
+          substring( q.query, n.value, 1 ) as chr
+        from
+          queries as q,
+          std_generate_series( 1, q.length ) as n
+        where not exists (
+          select 1 from _coverage_1 as c
+          where c.qid = q.qid and n.value between c.idx1 + 1 and c.idx2 + 1
+          /* and not std_re_is_match( substring( q.query, n.value, 1 ), '\s' ) */ )
+      ;"""
+    @db SQL"""
+      create view coverage as select
+          *
+        from _coverage_1
+        order by idx1;"""
     return null
 
   #---------------------------------------------------------------------------------------------------------
   _compile_sql: ->
     GUY.props.hide @, 'statements',
+      #.....................................................................................................
+      insert_query: @db.prepare_insert
+        into:         'queries'
+        exclude:      [ 'qid', ]
+        returning:    '*'
+      #.....................................................................................................
       insert_regular_node: @db.prepare SQL"""
-        insert into raw_nodes ( id, upid, type, idx1, idx2, lnr1, col1, lnr2, col2, txt )
+        insert into raw_nodes ( qid, id, upid, type, idx1, idx2, lnr1, col1, lnr2, col2 )
           values (
+            $qid,
             ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
-            $upid, $type, $idx1, $idx2, $lnr1, $col1, $lnr2, $col2, $txt )
+            $upid, $type, $idx1, $idx2, $lnr1, $col1, $lnr2, $col2 )
           returning *;"""
+      #.....................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
