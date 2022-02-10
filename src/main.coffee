@@ -79,6 +79,10 @@ class @Desql
           n.pos1                                                as pos1,
           n.pos2                                                as pos2,
           substring( q.query, n.pos1, n.pos2 - n.pos1 + 1 )     as txt
+          n.lnr1                                                          as lnr1,
+          n.col1                                                          as col1,
+          n.lnr2                                                          as lnr2,
+          n.col2                                                          as col2,
         from raw_nodes as n
         join queries as q using ( qid )
         where pos1 is not null;"""
@@ -94,6 +98,14 @@ class @Desql
           pos2 + 1                                              as nxt_pos1,
           lead( pos1 ) over w - 1                               as nxt_pos2,
           txt                                                   as txt
+          -- ### TAINT the line and column numbers of coverage holes are those from the
+          -- preceding recognized terminal, not those of the added space & solid material.
+          -- As such, these numbers are out of sync with the `pos1`, `pos2` fields.
+          -- This should be fixed in a future iteration.
+          c.lnr1                                                          as lnr1,
+          c.col1                                                          as col1,
+          c.lnr2                                                          as lnr2,
+          c.col2                                                          as col2,
         from _coverage_1 as c
         window w as ( partition by qid order by pos1 );"""
     #.......................................................................................................
@@ -105,6 +117,10 @@ class @Desql
           c.prv_type                                                      as prv_type,
           c.nxt_pos1                                                      as pos1,
           c.nxt_pos2                                                      as pos2,
+          c.lnr1                                                          as lnr1,
+          c.col1                                                          as col1,
+          c.lnr2                                                          as lnr2,
+          c.col2                                                          as col2,
           substring( q.query, c.nxt_pos1, c.nxt_pos2 - c.nxt_pos1 + 1 )   as txt
         from _coverage_holes_1  as c
         join queries            as q using ( qid )
@@ -120,6 +136,10 @@ class @Desql
             else 'missing' end                                            as type,
           c.pos1                                                          as pos1,
           c.pos2                                                          as pos2,
+          c.lnr1                                                          as lnr1,
+          c.col1                                                          as col1,
+          c.lnr2                                                          as lnr2,
+          c.col2                                                          as col2,
           c.txt                                                           as txt
         from _coverage_holes_2  as c
       ;"""
