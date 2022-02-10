@@ -75,6 +75,7 @@ class @Desql
           n.qid                                                           as qid,
           n.id                                                            as id,
           n.xtra                                                          as xtra,
+          n.upid                                                          as upid,
           n.type                                                          as type,
           n.pos1                                                          as pos1,
           n.pos2                                                          as pos2,
@@ -92,6 +93,7 @@ class @Desql
           c.qid                                                           as qid,
           c.id                                                            as id,
           c.xtra                                                          as prv_xtra,
+          c.upid                                                          as prv_upid,
           c.type                                                          as prv_type,
           c.pos1                                                          as pos1,
           c.pos2                                                          as pos2,
@@ -114,6 +116,7 @@ class @Desql
           c.qid                                                           as qid,
           c.id                                                            as id,
           c.prv_xtra                                                      as prv_xtra,
+          c.prv_upid                                                      as prv_upid,
           c.prv_type                                                      as prv_type,
           c.nxt_pos1                                                      as pos1,
           c.nxt_pos2                                                      as pos2,
@@ -132,6 +135,7 @@ class @Desql
           c.qid                                                           as qid,
           c.id                                                            as id,
           2                                                               as xtra,
+          c.prv_upid                                                      as upid,
           case when std_str_is_blank( c.txt ) then 'ws'
             else 'missing' end                                            as type,
           c.pos1                                                          as pos1,
@@ -153,6 +157,16 @@ class @Desql
           *
         from _coverage_holes
         order by qid, pos1;"""
+    #.......................................................................................................
+    @db SQL"""
+      create view nodes as select
+          *,
+          null as txt
+        from raw_nodes
+      union all select
+          *
+        from _coverage_holes
+        order by qid, id, xtra;"""
     #.......................................................................................................
     return null
 
