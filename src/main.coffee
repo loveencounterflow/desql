@@ -104,10 +104,26 @@ class @Desql
       ;"""
     #.......................................................................................................
     @db SQL"""
-      create view coverage as select
+      create view _coverage_2 as select
           *
         from _coverage_1
-        order by pos1;"""
+      union all select
+          *
+        from _coverage_holes
+        order by qid, pos1;"""
+    #.......................................................................................................
+    @db SQL"""
+      create view coverage as select
+          qid                                                             as qid,
+          id                                                              as id,
+          2                                                               as xtra,
+          case when std_re_is_match( txt, '^\s+$' ) then 'ws'
+            else 'missing' end                                            as type,
+          pos1                                                            as pos1,
+          pos2                                                            as pos2,
+          txt                                                             as txt
+        from _coverage_2
+        order by qid, pos1;"""
     #.......................................................................................................
     return null
 
