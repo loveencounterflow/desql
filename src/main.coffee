@@ -75,6 +75,7 @@ class @Desql
           n.qid                                                 as qid,
           n.id                                                  as id,
           n.xtra                                                as xtra,
+          n.type                                                as type,
           n.pos1                                                as pos1,
           n.pos2                                                as pos2,
           substring( q.query, n.pos1, n.pos2 - n.pos1 + 1 )     as txt
@@ -84,17 +85,24 @@ class @Desql
     #.......................................................................................................
     @db SQL"""
       create view _coverage_holes_1 as select
-          *,
+          qid                                                   as qid,
+          id                                                    as id,
+          xtra                                                  as prv_xtra,
+          type                                                  as prv_type,
+          pos1                                                  as pos1,
+          pos2                                                  as pos2,
+          txt                                                   as txt,
           pos2 + 1                                              as nxt_pos1,
           lead( pos1 ) over w - 1                               as nxt_pos2
         from _coverage_1 as c
         window w as ( partition by qid order by pos1 );"""
     #.......................................................................................................
     @db SQL"""
-      create view _coverage_holes as select
+      create view _coverage_holes_2 as select
           c.qid                                                           as qid,
           c.id                                                            as id,
-          c.xtra                                                          as xtra,
+          c.prv_xtra                                                      as prv_xtra,
+          c.prv_type                                                      as prv_type,
           c.nxt_pos1                                                      as pos1,
           c.nxt_pos2                                                      as pos2,
           substring( q.query, c.nxt_pos1, c.nxt_pos2 - c.nxt_pos1 + 1 )   as txt
@@ -104,25 +112,26 @@ class @Desql
       ;"""
     #.......................................................................................................
     @db SQL"""
-      create view _coverage_2 as select
-          *
-        from _coverage_1
-      union all select
-          *
-        from _coverage_holes
-        order by qid, pos1;"""
+      create view _coverage_holes as select
+          c.qid                                                           as qid,
+          c.id                                                            as id,
+          2                                                               as xtra,
+          case when std_str_is_blank( c.txt ) then 'ws'
+            else 'missing' end                                            as type,
+          c.pos1                                                          as pos1,
+          c.pos2                                                          as pos2,
+          c.txt                                                           as txt
+        from _coverage_holes_2  as c
+      ;"""
     #.......................................................................................................
     @db SQL"""
       create view coverage as select
-          qid                                                             as qid,
-          id                                                              as id,
-          2                                                               as xtra,
-          case when std_str_is_blank( txt ) then 'ws'
-            else 'missing' end                                            as type,
-          pos1                                                            as pos1,
-          pos2                                                            as pos2,
-          txt                                                             as txt
-        from _coverage_2
+          *
+        from _coverage_1
+        where txt != ''
+      union all select
+          *
+        from _coverage_holes
         order by qid, pos1;"""
     #.......................................................................................................
     return null
@@ -151,7 +160,7 @@ class @Desql
       insert_start_node: @db.prepare SQL"""
         insert into raw_nodes ( qid, id, xtra, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
           values (
-            $qid, 1, 1, null, 'start', 0, 1, 0, 0, 0, 0 )
+            $qid, 1, 1, null, 'start', 1, 0, 0, 0, 0, 0 )
           returning *;"""
       #.....................................................................................................
       insert_stop_node: @db.prepare SQL"""
