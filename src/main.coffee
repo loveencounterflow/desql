@@ -161,9 +161,10 @@ class @Desql
           *,
           null as txt
         from raw_nodes
+        where pos1 is null
       union all select
           *
-        from _coverage_holes
+        from coverage
         order by qid, id, xtra;"""
     #.......................................................................................................
     return null
