@@ -26,7 +26,7 @@
   "homepage": "https://github.com/loveencounterflow/desql#readme",
   "dependencies": {
     "cnd": "^9.2.2",
-    "dbay": "^11.1.1",
+    "dbay": "11.2.0",
     "guy": "^4.0.0",
     "intertype": "^7.7.0",
     "just-snake-case": "^3.0.1",
