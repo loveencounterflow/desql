@@ -120,12 +120,34 @@ class @Desql
         exclude:      [ 'qid', ]
         returning:    '*'
       #.....................................................................................................
+      insert_special_node: @db.prepare_insert
+        into:         'raw_nodes'
+        returning:    '*'
+      #.....................................................................................................
       insert_regular_node: @db.prepare SQL"""
         insert into raw_nodes ( qid, id, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
           values (
             $qid,
             ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
             $upid, $type, $pos1, $pos2, $lnr1, $col1, $lnr2, $col2 )
+          returning *;"""
+      #.....................................................................................................
+      insert_start_node: @db.prepare SQL"""
+        insert into raw_nodes ( qid, id, xtra, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
+          values (
+            $qid, 1, 1, null, 'start', 0, 1, 0, 0, 0, 0 )
+          returning *;"""
+      #.....................................................................................................
+      insert_stop_node: @db.prepare SQL"""
+        insert into raw_nodes ( qid, id, xtra, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
+          values (
+            $qid,
+            ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
+            1, null, 'stop',
+            -- ### TAINT would use CET but fails with "no such column: v.length"
+            ( select length + 1 from queries where qid = $qid ),
+            ( select length     from queries where qid = $qid ),
+            0, 0, 0, 0 )
           returning *;"""
       #.....................................................................................................
     return null
@@ -137,7 +159,9 @@ class @Desql
     antlr           = { children: [ ( ANTLR.parse query, parser_cfg ).tree, ], }
     R               = { type: 'query', nodes: [], }
     { qid, }        = @statements.insert_query.get { query, }
+    R.nodes.push @statements.insert_start_node.get { qid, }
     @_build_tree qid, query, antlr, null, 0, R
+    R.nodes.push @statements.insert_stop_node.get { qid, }
     return R
 
   #---------------------------------------------------------------------------------------------------------
