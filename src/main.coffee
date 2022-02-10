@@ -91,9 +91,9 @@ class @Desql
           type                                                  as prv_type,
           pos1                                                  as pos1,
           pos2                                                  as pos2,
-          txt                                                   as txt,
           pos2 + 1                                              as nxt_pos1,
-          lead( pos1 ) over w - 1                               as nxt_pos2
+          lead( pos1 ) over w - 1                               as nxt_pos2,
+          txt                                                   as txt
         from _coverage_1 as c
         window w as ( partition by qid order by pos1 );"""
     #.......................................................................................................
