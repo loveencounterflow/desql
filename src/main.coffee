@@ -127,8 +127,7 @@ class @Desql
           substring( q.query, c.nxt_pos1, c.nxt_pos2 - c.nxt_pos1 + 1 )   as txt
         from _coverage_holes_1  as c
         join queries            as q using ( qid )
-        where c.nxt_pos1 <= c.nxt_pos2
-      ;"""
+        where c.nxt_pos1 <= c.nxt_pos2;"""
     #.......................................................................................................
     @db SQL"""
       create view _coverage_holes as select
@@ -145,8 +144,7 @@ class @Desql
           c.lnr2                                                          as lnr2,
           c.col2                                                          as col2,
           c.txt                                                           as txt
-        from _coverage_holes_2  as c
-      ;"""
+        from _coverage_holes_2  as c;"""
     #.......................................................................................................
     @db SQL"""
       create view coverage as select
