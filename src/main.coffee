@@ -15,8 +15,6 @@ help                      = CND.get_logger 'help',      badge
 whisper                   = CND.get_logger 'whisper',   badge
 echo                      = CND.echo.bind CND
 #...........................................................................................................
-# PATH                      = require 'path'
-# FS                        = require 'fs'
 types                     = new ( require 'intertype' ).Intertype
 { isa
   equals
@@ -67,7 +65,6 @@ class @Desql
           col1    integer,
           lnr2    integer,
           col2    integer,
-          txt     text,
         primary key ( qid, id, xtra ),
         foreign key ( qid ) references queries
         -- foreign key ( upid ) references raw_nodes ( id ) DEFERRABLE INITIALLY DEFERRED
@@ -88,10 +85,10 @@ class @Desql
     @db SQL"""
       create view _coverage_holes_1 as select
           *,
-          c.pos2 + 1                                                      as nxt_pos1,
-          lead( c.pos1 ) over w - 1                                       as nxt_pos2
+          pos2 + 1                                              as nxt_pos1,
+          lead( pos1 ) over w - 1                               as nxt_pos2
         from _coverage_1 as c
-        window w as ( partition by c.qid order by pos1 );"""
+        window w as ( partition by qid order by pos1 );"""
     #.......................................................................................................
     @db SQL"""
       create view coverage_holes as select
@@ -149,14 +146,10 @@ class @Desql
       type            = @_type_of_antler_node branch
       position        = @_position_from_branch branch
       txt             = null
-      # txt             = query[ position.pos1 .. position.pos2 ] if position.pos1?
-      # txt             = ( Array.from query )[ position.pos1 .. position.pos2 ].join '' if position.pos1?
       upid            = parent?.id ? null
       flat_node       = { qid, upid, type, position..., }
-      # flat_node.txt   = if txt is '' then null else txt
       @db SQL"savepoint svp_name;"
       flat_node       = @statements.insert_regular_node.get flat_node
-      # dent  = '  '.repeat level; debug '^9876^', dent + rpr flat_node
       node            = { flat_node..., nodes: [], }
       if branch.children?
         @_build_tree qid, query, branch, flat_node, level + 1, node
