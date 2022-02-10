@@ -34,6 +34,7 @@
 * **[–]** at present, comments and stuff the parser doesn't understand are left out of the result
   which constitues silent failure; ensure 100% source code coverage (whitespace may be left out,
   but not comments and also not unsyntactic garbage)
+* **[–]** fix line, column numbers for coverage misses (whitespace and material stretches)
 
 
 
