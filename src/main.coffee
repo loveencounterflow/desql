@@ -98,8 +98,8 @@ class @Desql
           c.nxt_pos1                                                      as pos1,
           c.nxt_pos2                                                      as pos2,
           substring( q.query, c.nxt_pos1, c.nxt_pos2 - c.nxt_pos1 + 1 )   as txt
-        from _coverage_holes_1 as c
-        join queries as q using ( qid )
+        from _coverage_holes_1  as c
+        join queries            as q using ( qid )
         where c.nxt_pos1 <= c.nxt_pos2
       ;"""
     #.......................................................................................................
