@@ -91,7 +91,7 @@ class @Desql
         window w as ( partition by qid order by pos1 );"""
     #.......................................................................................................
     @db SQL"""
-      create view coverage_holes as select
+      create view _coverage_holes as select
           c.qid                                                           as qid,
           c.id                                                            as id,
           c.xtra                                                          as xtra,
