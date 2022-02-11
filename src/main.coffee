@@ -34,7 +34,7 @@ to_snake_case             = require 'just-snake-case'
 class @Desql
 
   @C: GUY.lft.freeze
-    pathsep:  ' '
+    pathsep:  '-'
     typedata:
       by_full_name:
         #.....................................................................................................
