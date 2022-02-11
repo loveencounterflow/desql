@@ -175,7 +175,7 @@ class @Desql
           c.id                                                            as id,
           2                                                               as xtra,
           c.prv_upid                                                      as upid,
-          case when std_str_is_blank( c.txt ) then 'ws'
+          case when std_str_is_blank( c.txt ) then 'spc'
             else 'missing' end                                            as type,
           c.pos1                                                          as pos1,
           c.pos2                                                          as pos2,
@@ -307,4 +307,3 @@ class @Desql
       lnr2  = null
       col2  = null
     return { pos1, lnr1, col1, pos2, lnr2, col2, }
-
