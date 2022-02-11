@@ -25,9 +25,9 @@
 
 🚧 Work in progress 🚧
 
-![](art/Screenshot 2022-02-11 at 20.20.17.png)
+![](art/Screenshot%202022-02-11%20at%2020.20.17.png)
 
-![](art/Screenshot 2022-02-11 at 20.24.18.png)
+![](art/Screenshot%202022-02-11%20at%2020.24.18.png)
 
 
 ## To Do
