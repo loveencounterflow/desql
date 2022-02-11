@@ -45,6 +45,8 @@ class @Desql
         #.....................................................................................................
         column_reference:                 t2: 'cr'
         constant:                         t2: 'c'
+        comparison:                       t2: 'cmp'
+        comparison_operator:              t2: 'cmpop'
         create_view:                      t2: 'cv'
         error_capturing_identifier:       t2: 'eci'
         expression:                       t2: 'e'
