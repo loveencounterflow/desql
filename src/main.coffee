@@ -33,45 +33,55 @@ to_snake_case             = require 'just-snake-case'
 #-----------------------------------------------------------------------------------------------------------
 class @Desql
 
-  typedata: GUY.lft.freeze
-    by_full_name:
-      column_reference:             t2: 'cr'
-      constant_default:             t2: 'cd'
-      create_view:                  t2: 'cv'
-      error_capturing_identifier:   t2: 'eci'
-      expression:                   t2: 'e'
-      frame_bound:                  t2: 'fb'
-      from_clause:                  t2: 'fr'
-      function_call:                t2: 'fc'
-      function_name:                t2: 'fn'
-      identifier:                   t2: 'id'
-      missing:                      t2: 'ms'
-      multipart_identifier:         t2: 'mi'
-      named_expression:             t2: 'ne'
-      named_expression_seq:         t2: 'nes'
-      named_window:                 t2: 'nw'
-      predicated:                   t2: 'pd'
-      qualified_name:               t2: 'qn'
-      query:                        t2: 'q'
-      query_organization:           t2: 'qo'
-      query_primary_default:        t2: 'qpd'
-      query_term_default:           t2: 'qtd'
-      quoted_identifier:            t2: 'qid'
-      regular_query_specification:  t2: 'rqs'
-      relation:                     t2: 'r'
-      select_clause:                t2: 's'
-      set_quantifier:               t2: 'sq'
-      sort_item:                    t2: 'si'
-      string_literal:               t2: 'str'
-      table_name:                   t2: 'tn'
-      terminal:                     t2: 't'
-      unquoted_identifier:          t2: 'uid'
-      value_expression_default:     t2: 'ved'
-      window_clause:                t2: 'w'
-      window_def:                   t2: 'wd'
-      window_frame:                 t2: 'wf'
-      window_ref:                   t2: 'wr'
-      space:                        t2: 'spc'
+  @C: GUY.lft.freeze
+    pathsep:  ' '
+    typedata:
+      by_full_name:
+        #.....................................................................................................
+        spc:                              t2: 'spc'
+        msg:                              t2: 'msg'
+        start:                            t2: 'start'
+        stop:                             t2: 'stop'
+        #.....................................................................................................
+        column_reference:                 t2: 'cr'
+        constant:                         t2: 'c'
+        create_view:                      t2: 'cv'
+        error_capturing_identifier:       t2: 'eci'
+        expression:                       t2: 'e'
+        frame_bound:                      t2: 'fb'
+        from_clause:                      t2: 'fr'
+        function_call:                    t2: 'fc'
+        function_name:                    t2: 'fn'
+        identifier:                       t2: 'i'
+        multipart_identifier:             t2: 'mi'
+        named_expression:                 t2: 'ne'
+        named_expression_seq:             t2: 'nes'
+        named_window:                     t2: 'nw'
+        predicated:                       t2: 'pd'
+        qualified_name:                   t2: 'qn'
+        query:                            t2: 'q'
+        query_organization:               t2: 'qo'
+        query_primary:                    t2: 'qp'
+        query_term:                       t2: 'qt'
+        quoted_identifier:                t2: 'qi'
+        quoted_identifier_alternative:    t2: 'qia'
+        regular_query_specification:      t2: 'rqs'
+        relation:                         t2: 'r'
+        select_clause:                    t2: 's'
+        set_quantifier:                   t2: 'sq'
+        sort_item:                        t2: 'si'
+        string_literal:                   t2: 'str'
+        statement:                        t2: 's'
+        table_alias:                      t2: 'ta'
+        table_name:                       t2: 'tn'
+        terminal:                         t2: 't'
+        unquoted_identifier:              t2: 'ui'
+        value_expression:                 t2: 've'
+        where_clause:                     t2: 'wh'
+        window_clause:                    t2: 'w'
+        window_def:                       t2: 'wd'
+        window_frame:                     t2: 'wf'
+        window_ref:                       t2: 'wr'
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( P... ) ->
@@ -85,6 +95,7 @@ class @Desql
   _procure_infrastructure: ->
     ### TAINT check if tables exist ###
     @db.create_stdlib()
+    pathsep_lit = @db.sql.L @constructor.C.pathsep
     #.......................................................................................................
     @db SQL"""
       create table queries (
@@ -99,6 +110,7 @@ class @Desql
           xtra    integer not null default 1,
           upid    integer,
           type    text    not null,
+          path    text    not null,
           pos1    integer,
           pos2    integer,
           lnr1    integer,
@@ -117,6 +129,7 @@ class @Desql
           n.xtra                                                          as xtra,
           n.upid                                                          as upid,
           n.type                                                          as type,
+          n.path                                                          as path,
           n.pos1                                                          as pos1,
           n.pos2                                                          as pos2,
           n.lnr1                                                          as lnr1,
@@ -135,6 +148,7 @@ class @Desql
           c.xtra                                                          as prv_xtra,
           c.upid                                                          as prv_upid,
           c.type                                                          as prv_type,
+          c.path                                                          as prv_path,
           c.pos1                                                          as pos1,
           c.pos2                                                          as pos2,
           c.pos2 + 1                                                      as nxt_pos1,
@@ -158,6 +172,7 @@ class @Desql
           c.prv_xtra                                                      as prv_xtra,
           c.prv_upid                                                      as prv_upid,
           c.prv_type                                                      as prv_type,
+          c.prv_path                                                      as prv_path,
           c.nxt_pos1                                                      as pos1,
           c.nxt_pos2                                                      as pos2,
           c.lnr1                                                          as lnr1,
@@ -176,6 +191,7 @@ class @Desql
           2                                                               as xtra,
           c.prv_upid                                                      as upid,
           r.type                                                          as type,
+          c.prv_path || #{pathsep_lit} || r.type                          as path,
           c.pos1                                                          as pos1,
           c.pos2                                                          as pos2,
           c.lnr1                                                          as lnr1,
@@ -184,8 +200,11 @@ class @Desql
           c.col2                                                          as col2,
           c.txt                                                           as txt
         from _coverage_holes_2  as c
-        join ( select qid, id, case when std_str_is_blank( txt ) then 'spc'
-            else 'missing' end as type from _coverage_holes_2 ) as r using ( qid, id );"""
+        join ( select
+            qid,
+            id,
+            case when std_str_is_blank( txt ) then 'spc' else 'msg' end as type
+          from _coverage_holes_2 ) as r using ( qid, id );"""
     #.......................................................................................................
     @db SQL"""
       create view coverage as select
@@ -212,6 +231,7 @@ class @Desql
 
   #---------------------------------------------------------------------------------------------------------
   _compile_sql: ->
+    pathsep_lit = @db.sql.L @constructor.C.pathsep
     GUY.props.hide @, 'statements',
       #.....................................................................................................
       insert_query: @db.prepare_insert
@@ -224,25 +244,25 @@ class @Desql
         returning:    '*'
       #.....................................................................................................
       insert_regular_node: @db.prepare SQL"""
-        insert into raw_nodes ( qid, id, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
+        insert into raw_nodes ( qid, id, upid, type, path, pos1, pos2, lnr1, col1, lnr2, col2 )
           values (
             $qid,
             ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
-            $upid, $type, $pos1, $pos2, $lnr1, $col1, $lnr2, $col2 )
+            $upid, $type, $path, $pos1, $pos2, $lnr1, $col1, $lnr2, $col2 )
           returning *;"""
       #.....................................................................................................
       insert_start_node: @db.prepare SQL"""
-        insert into raw_nodes ( qid, id, xtra, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
+        insert into raw_nodes ( qid, id, xtra, upid, type, path, pos1, pos2, lnr1, col1, lnr2, col2 )
           values (
-            $qid, 1, 1, null, 'start', 1, 0, 0, 0, 0, 0 )
+            $qid, 1, 1, null, 'start', 'start', 1, 0, 0, 0, 0, 0 )
           returning *;"""
       #.....................................................................................................
       insert_stop_node: @db.prepare SQL"""
-        insert into raw_nodes ( qid, id, xtra, upid, type, pos1, pos2, lnr1, col1, lnr2, col2 )
+        insert into raw_nodes ( qid, id, xtra, upid, type, path, pos1, pos2, lnr1, col1, lnr2, col2 )
           values (
             $qid,
             ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
-            1, null, 'stop',
+            1, null, 'stop', 'stop',
             -- ### TAINT would use CET but fails with "no such column: v.length"
             ( select length + 1 from queries where qid = $qid ),
             ( select length     from queries where qid = $qid ),
@@ -259,23 +279,27 @@ class @Desql
     R               = { type: 'query', nodes: [], }
     { qid, }        = @statements.insert_query.get { query, }
     R.nodes.push @statements.insert_start_node.get { qid, }
-    @_build_tree qid, query, antlr, null, 0, R
+    @_build_tree qid, query, antlr, null, R
     R.nodes.push @statements.insert_stop_node.get { qid, }
     return R
 
   #---------------------------------------------------------------------------------------------------------
-  _build_tree: ( qid, query, antlr, parent, level, tree ) ->
+  _build_tree: ( qid, query, antlr, parent, tree ) ->
+    tdbfn   = @constructor.C.typedata.by_full_name
+    pathsep = @constructor.C.pathsep
     for branch in antlr.children
       type            = @_type_of_antler_node branch
       position        = @_position_from_branch branch
       txt             = null
       upid            = parent?.id ? null
-      flat_node       = { qid, upid, type, position..., }
+      short_type      = tdbfn[ type ]?.t2 ? type
+      path            = if parent? then parent.path + pathsep + short_type else short_type
+      flat_node       = { qid, upid, type, path, position..., }
       @db SQL"savepoint svp_name;"
       flat_node       = @statements.insert_regular_node.get flat_node
       node            = { flat_node..., nodes: [], }
       if branch.children?
-        @_build_tree qid, query, branch, flat_node, level + 1, node
+        @_build_tree qid, query, branch, flat_node, node
       if ( node.type isnt 'terminal' ) and ( node.nodes.length is 0 )
         @db SQL"rollback transaction to savepoint svp_name;" # , { svp_name, }
       else
@@ -287,7 +311,7 @@ class @Desql
   #---------------------------------------------------------------------------------------------------------
   _type_of_antler_node: ( node ) ->
     R = node.constructor.name
-    R = R.replace /(Node|Context)$/, ''
+    R = R.replace /(Node|(Default)?Context)$/, ''
     R = to_snake_case R
     return R
 
