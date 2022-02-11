@@ -33,6 +33,46 @@ to_snake_case             = require 'just-snake-case'
 #-----------------------------------------------------------------------------------------------------------
 class @Desql
 
+  typedata: GUY.lft.freeze
+    by_full_name:
+      column_reference:             t2: 'cr'
+      constant_default:             t2: 'cd'
+      create_view:                  t2: 'cv'
+      error_capturing_identifier:   t2: 'eci'
+      expression:                   t2: 'e'
+      frame_bound:                  t2: 'fb'
+      from_clause:                  t2: 'fr'
+      function_call:                t2: 'fc'
+      function_name:                t2: 'fn'
+      identifier:                   t2: 'id'
+      missing:                      t2: 'ms'
+      multipart_identifier:         t2: 'mi'
+      named_expression:             t2: 'ne'
+      named_expression_seq:         t2: 'nes'
+      named_window:                 t2: 'nw'
+      predicated:                   t2: 'pd'
+      qualified_name:               t2: 'qn'
+      query:                        t2: 'q'
+      query_organization:           t2: 'qo'
+      query_primary_default:        t2: 'qpd'
+      query_term_default:           t2: 'qtd'
+      quoted_identifier:            t2: 'qid'
+      regular_query_specification:  t2: 'rqs'
+      relation:                     t2: 'r'
+      select_clause:                t2: 's'
+      set_quantifier:               t2: 'sq'
+      sort_item:                    t2: 'si'
+      string_literal:               t2: 'str'
+      table_name:                   t2: 'tn'
+      terminal:                     t2: 't'
+      unquoted_identifier:          t2: 'uid'
+      value_expression_default:     t2: 'ved'
+      window_clause:                t2: 'w'
+      window_def:                   t2: 'wd'
+      window_frame:                 t2: 'wf'
+      window_ref:                   t2: 'wr'
+      space:                        t2: 'spc'
+
   #---------------------------------------------------------------------------------------------------------
   constructor: ( P... ) ->
     throw new Error "^345^ configuration settings not supported" if P.length > 0
