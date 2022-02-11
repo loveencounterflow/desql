@@ -301,7 +301,7 @@ class @Desql
       txt             = null
       upid            = parent?.id ? null
       short_type      = tdbfn[ type ]?.t2 ? type
-      path            = if parent? then parent.path + pathsep + short_type else short_type
+      path            = if parent? then parent.path + pathsep + short_type else pathsep + short_type
       flat_node       = { qid, upid, type, path, position..., }
       @db SQL"savepoint svp_name;"
       flat_node       = @statements.insert_regular_node.get flat_node
