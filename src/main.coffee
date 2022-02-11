@@ -175,8 +175,7 @@ class @Desql
           c.id                                                            as id,
           2                                                               as xtra,
           c.prv_upid                                                      as upid,
-          case when std_str_is_blank( c.txt ) then 'spc'
-            else 'missing' end                                            as type,
+          r.type                                                          as type,
           c.pos1                                                          as pos1,
           c.pos2                                                          as pos2,
           c.lnr1                                                          as lnr1,
@@ -184,7 +183,9 @@ class @Desql
           c.lnr2                                                          as lnr2,
           c.col2                                                          as col2,
           c.txt                                                           as txt
-        from _coverage_holes_2  as c;"""
+        from _coverage_holes_2  as c
+        join ( select qid, id, case when std_str_is_blank( txt ) then 'spc'
+            else 'missing' end as type from _coverage_holes_2 ) as r using ( qid, id );"""
     #.......................................................................................................
     @db SQL"""
       create view coverage as select
