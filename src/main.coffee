@@ -116,14 +116,99 @@ class @Desql
     throw new Error "^345^ configuration settings not supported" if P.length > 0
     @db = new DBay()
     @_procure_infrastructure()
+    @_procure_infradata()
     @_compile_sql()
     return undefined
+
+  #---------------------------------------------------------------------------------------------------------
+  _procure_infradata: ->
+    @db SQL"""
+      insert into types ( name, short ) values
+        -- .................................................................................................
+        ( 'spc',                                'spc'       ),
+        ( 'msg',                                'msg'       ),
+        ( 'start',                              'start'     ),
+        ( 'stop',                               'stop'      ),
+        -- .................................................................................................
+        ( 'ansi_non_reserved',                  'ansinr'    ),
+        ( 'arithmetic_binary',                  'arthbin'   ),
+        ( 'aliased_query',                      'aq'        ),
+        ( 'column_reference',                   'cref'      ),
+        ( 'col_type_list',                      'cltl'      ),
+        ( 'col_type',                           'clt'       ),
+        ( 'constant',                           'c'         ),
+        ( 'comparison',                         'cmp'       ),
+        ( 'comparison_operator',                'cmpop'     ),
+        ( 'create_table',                       'ctable'    ),
+        ( 'create_table_header',                'ctableh'   ),
+        ( 'create_view',                        'cview'     ),
+        ( 'dereference',                        'dref'      ),
+        ( 'dml_statement',                      'dml'       ),
+        ( 'drop_view',                          'dropv'     ),
+        ( 'error_capturing_identifier',         'eci'       ),
+        ( 'expression',                         'e'         ),
+        ( 'frame_bound',                        'fb'        ),
+        ( 'from_clause',                        'from'      ),
+        ( 'function_call',                      'fc'        ),
+        ( 'function_name',                      'fn'        ),
+        ( 'identifier',                         'i'         ),
+        ( 'insert_into_table',                  'iit'       ),
+        ( 'join_relation',                      'jr'        ),
+        ( 'join_criteria_on',                   'jco'       ),
+        ( 'join_criteria_using',                'jcu'       ),
+        ( 'identifier_list',                    'il'        ),
+        ( 'identifier_seq',                     'is'        ),
+        ( 'inline_table',                       'it'        ),
+        ( 'inline_table_default1',              'itd1'      ),
+        ( 'multipart_identifier',               'mi'        ),
+        ( 'named_expression',                   'ne'        ),
+        ( 'named_expression_seq',               'nes'       ),
+        ( 'named_window',                       'nw'        ),
+        ( 'numeric_literal',                    'nl'        ),
+        ( 'integer_literal',                    'int'       ),
+        ( 'parenthesized_expression',           'pe'        ),
+        ( 'predicated',                         'pd'        ),
+        ( 'primitive_data_type',                'pdt'       ),
+        ( 'qualified_name',                     'qn'        ),
+        ( 'query',                              'q'         ),
+        ( 'query_organization',                 'qo'        ),
+        ( 'query_primary',                      'qp'        ),
+        ( 'query_term',                         'qt'        ),
+        ( 'quoted_identifier',                  'qi'        ),
+        ( 'quoted_identifier_alternative',      'qia'       ),
+        ( 'regular_query_specification',        'rqs'       ),
+        ( 'relation',                           'r'         ),
+        ( 'row_constructor',                    'roco'      ),
+        ( 'searched_case',                      'case'      ),
+        ( 'select_clause',                      'select'    ),
+        ( 'set_quantifier',                     'sq'        ),
+        ( 'single_insert_query',                'siq'       ),
+        ( 'sort_item',                          'si'        ),
+        ( 'string_literal',                     'str'       ),
+        ( 'statement',                          's'         ),
+        ( 'table_alias',                        'ta'        ),
+        ( 'table_name',                         'tn'        ),
+        ( 'terminal',                           't'         ),
+        ( 'unquoted_identifier',                'ui'        ),
+        ( 'value_expression',                   've'        ),
+        ( 'when_clause',                        'when'      ),
+        ( 'where_clause',                       'where'     ),
+        ( 'window_clause',                      'window'    ),
+        ( 'window_def',                         'wd'        ),
+        ( 'window_frame',                       'wf'        ),
+        ( 'window_ref',                         'wr'        );"""
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   _procure_infrastructure: ->
     ### TAINT check if tables exist ###
     @db.create_stdlib()
     pathsep_lit = @db.sql.L @constructor.C.pathsep
+    #.......................................................................................................
+    @db SQL"""
+      create table types (
+          name    text not null primary key,
+          short   text not null unique );"""
     #.......................................................................................................
     @db SQL"""
       create table queries (
