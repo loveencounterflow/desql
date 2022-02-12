@@ -39,7 +39,7 @@ class @Desql
       by_full_name:
         #.....................................................................................................
         spc:                              t2: 'spc'
-        msg:                              t2: 'msg'
+        miss:                             t2: 'miss'
         start:                            t2: 'start'
         stop:                             t2: 'stop'
         #.....................................................................................................
@@ -126,7 +126,7 @@ class @Desql
       insert into types ( name, short ) values
         -- .................................................................................................
         ( 'spc',                                'spc'       ),
-        ( 'msg',                                'msg'       ),
+        ( 'miss',                               'miss'      ),
         ( 'start',                              'start'     ),
         ( 'stop',                               'stop'      ),
         -- .................................................................................................
@@ -316,7 +316,8 @@ class @Desql
         join ( select
             qid,
             id,
-            case when std_str_is_blank( txt ) then 'spc' else 'msg' end as type
+            case when std_str_is_blank( txt ) then 'spc'
+              else 'miss' end                                             as type
           from _coverage_holes_2 ) as r using ( qid, id );"""
     #.......................................................................................................
     @db SQL"""
