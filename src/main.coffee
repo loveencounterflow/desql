@@ -48,7 +48,7 @@ class @Desql
   #---------------------------------------------------------------------------------------------------------
   _procure_infradata: ->
     @db SQL"""
-      insert into types ( name, short ) values
+      insert into ntypes ( name, short ) values
         -- .................................................................................................
         ( 'spc',                                'spc'       ),
         ( 'miss',                               'miss'      ),
@@ -122,7 +122,50 @@ class @Desql
         ( 'window_def',                         'wd'        ),
         ( 'window_frame',                       'wf'        ),
         ( 'window_ref',                         'wr'        );"""
+    for name in [
+        'k select'
+        'k where'
+        'k insert'
+        'k insert into'
+        'k generated'
+        'k generated always'
+        'k order'
+        'k order by'
+        'k order by ascending'
+        'k order by descending'
+        'k join'
+        'k join using'
+        'k join on'
+        'k window'
+        'k window as'
+        'k with'
+        'i select from tbl name'
+        'i select from tbl alias'
+        'i select from col name'
+        'i select from col alias'
+        'i order by tbl name'
+        'i order by col name'
+        'i join on tbl name'
+        'i join on tbl alias'
+        'i join on col name' ]
+      code = @_code_from_tcat_name name
+      try
+        @db SQL"insert into tcats ( code, name ) values ( $code, $name )", { code, name, }
+      catch error
+        debug error.name
+        throw error unless error.code is 'SQLITE_CONSTRAINT_UNIQUE'
+        throw new Error "^desql/_procure_infradata@1^ tcat code: #{rpr code} (name: #{rpr name}) is not unique"
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _code_from_tcat_name: ( name ) ->
+    switch name[ 0 ]
+      when 'k'
+        head  = name.replace /^(.)\s+(\S{1,3}[^aeiou]).*$/, '$1$2'
+        tail  = name.replace /^\S+\s+\S+\s*/, ''
+        tail  = tail.replace /(?:^|\s+)(.)\S*/g, '$1'
+        return head + tail
+    return name.replace /(?:^|\s+)(.)\S*/g, '$1'
 
   #---------------------------------------------------------------------------------------------------------
   _procure_infrastructure: ->
@@ -131,9 +174,26 @@ class @Desql
     pathsep_lit = @db.sql.L @constructor.C.pathsep
     #.......................................................................................................
     @db SQL"""
-      create table types (
+      create table ntypes ( -- node types
           name    text not null primary key,
           short   text not null unique );"""
+    # #.......................................................................................................
+    # @db SQL"""
+    #   create table tcats ( -- terminal category codes
+    #       code    text not null primary key,
+    #       kind    text not null generated always as ( substring( code, 1, 1 ) ) virtual,
+    #       part    text not null generated always as ( substring( code, 2, 1 ) ) virtual,
+    #       role    text not null generated always as ( substring( code, 3, 1 ) ) virtual,
+    #       name    text not null );"""
+    #     # check ( std_re_is_match( part, '^[A-Z]$'     ) ),
+    #     # check ( std_re_is_match( role, '^[a-z0-9]$'  ) ) );"""
+    #.......................................................................................................
+    @db SQL"""
+      create table tcats ( -- terminal category codes
+          code    text not null primary key,
+          name    text not null unique );"""
+        # check ( std_re_is_match( part, '^[A-Z]$'     ) ),
+        # check ( std_re_is_match( role, '^[a-z0-9]$'  ) ) );"""
     #.......................................................................................................
     @db SQL"""
       create table queries (
@@ -285,7 +345,7 @@ class @Desql
       insert_regular_node: @db.prepare SQL"""
         insert into raw_nodes ( qid, id, upid, type, path, pos1, pos2, lnr1, col1, lnr2, col2 )
           with
-            t as ( select *                 from types      where name = $type ),
+            t as ( select *                 from ntypes      where name = $type ),
             r as ( select *, count(*) as _  from raw_nodes  where qid = $qid and id = $upid and xtra = 1 )
           select
               $qid,
