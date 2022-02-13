@@ -359,10 +359,18 @@ class @Desql
       #.....................................................................................................
       insert_regular_node: @db.prepare SQL"""
         insert into raw_nodes ( qid, id, upid, type, path, pos1, pos2, lnr1, col1, lnr2, col2 )
-          values (
-            $qid,
-            ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
-            $upid, $type, $path, $pos1, $pos2, $lnr1, $col1, $lnr2, $col2 )
+          with
+            t as ( select *                 from types      where name = $type ),
+            r as ( select *, count(*) as _  from raw_nodes  where qid = $qid and id = $upid and xtra = 1 )
+          select
+              $qid,
+              ( select coalesce( max( id ), 0 ) + 1 as id from raw_nodes ),
+              $upid,
+              $type,
+              coalesce( r.path, '' ) || #{pathsep_lit} || t.short,
+              $pos1, $pos2, $lnr1, $col1, $lnr2, $col2
+            from t, r
+            where true
           returning *;"""
       #.....................................................................................................
       insert_start_node: @db.prepare SQL"""
@@ -407,8 +415,7 @@ class @Desql
       txt             = null
       upid            = parent?.id ? null
       short_type      = tdbfn[ type ]?.t2 ? type
-      path            = if parent? then parent.path + pathsep + short_type else pathsep + short_type
-      flat_node       = { qid, upid, type, path, position..., }
+      flat_node       = { qid, upid, type, position..., }
       @db SQL"savepoint svp_name;"
       flat_node       = @statements.insert_regular_node.get flat_node
       node            = { flat_node..., nodes: [], }
