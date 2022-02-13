@@ -35,81 +35,6 @@ class @Desql
 
   @C: GUY.lft.freeze
     pathsep:  '-'
-    typedata:
-      by_full_name:
-        #.....................................................................................................
-        spc:                              t2: 'spc'
-        miss:                             t2: 'miss'
-        start:                            t2: 'start'
-        stop:                             t2: 'stop'
-        #.....................................................................................................
-        ansi_non_reserved:                t2: 'ansinr'
-        arithmetic_binary:                t2: 'arthbin'
-        aliased_query:                    t2: 'aq'
-        column_reference:                 t2: 'cref'
-        col_type_list:                    t2: 'cltl'
-        col_type:                         t2: 'clt'
-        constant:                         t2: 'c'
-        comparison:                       t2: 'cmp'
-        comparison_operator:              t2: 'cmpop'
-        create_table:                     t2: 'ctable'
-        create_table_header:              t2: 'ctableh'
-        create_view:                      t2: 'cview'
-        dereference:                      t2: 'dref'
-        dml_statement:                    t2: 'dml'
-        drop_view:                        t2: 'dropv'
-        error_capturing_identifier:       t2: 'eci'
-        expression:                       t2: 'e'
-        frame_bound:                      t2: 'fb'
-        from_clause:                      t2: 'from'
-        function_call:                    t2: 'fc'
-        function_name:                    t2: 'fn'
-        identifier:                       t2: 'i'
-        insert_into_table:                t2: 'iit'
-        join_relation:                    t2: 'jr'
-        join_criteria_on:                 t2: 'jco'
-        join_criteria_using:              t2: 'jcu'
-        identifier_list:                  t2: 'il'
-        identifier_seq:                   t2: 'is'
-        inline_table:                     t2: 'it'
-        inline_table_default1:            t2: 'itd1'
-        multipart_identifier:             t2: 'mi'
-        named_expression:                 t2: 'ne'
-        named_expression_seq:             t2: 'nes'
-        named_window:                     t2: 'nw'
-        numeric_literal:                  t2: 'nl'
-        integer_literal:                  t2: 'int'
-        parenthesized_expression:         t2: 'pe'
-        predicated:                       t2: 'pd'
-        primitive_data_type:              t2: 'pdt'
-        qualified_name:                   t2: 'qn'
-        query:                            t2: 'q'
-        query_organization:               t2: 'qo'
-        query_primary:                    t2: 'qp'
-        query_term:                       t2: 'qt'
-        quoted_identifier:                t2: 'qi'
-        quoted_identifier_alternative:    t2: 'qia'
-        regular_query_specification:      t2: 'rqs'
-        relation:                         t2: 'r'
-        row_constructor:                  t2: 'roco'
-        searched_case:                    t2: 'case'
-        select_clause:                    t2: 'select'
-        set_quantifier:                   t2: 'sq'
-        single_insert_query:              t2: 'siq'
-        sort_item:                        t2: 'si'
-        string_literal:                   t2: 'str'
-        statement:                        t2: 's'
-        table_alias:                      t2: 'ta'
-        table_name:                       t2: 'tn'
-        terminal:                         t2: 't'
-        unquoted_identifier:              t2: 'ui'
-        value_expression:                 t2: 've'
-        when_clause:                      t2: 'when'
-        where_clause:                     t2: 'where'
-        window_clause:                    t2: 'window'
-        window_def:                       t2: 'wd'
-        window_frame:                     t2: 'wf'
-        window_ref:                       t2: 'wr'
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( P... ) ->
@@ -407,14 +332,12 @@ class @Desql
 
   #---------------------------------------------------------------------------------------------------------
   _build_tree: ( qid, query, antlr, parent, tree ) ->
-    tdbfn   = @constructor.C.typedata.by_full_name
     pathsep = @constructor.C.pathsep
     for branch in antlr.children
       type            = @_type_of_antler_node branch
       position        = @_position_from_branch branch
       txt             = null
       upid            = parent?.id ? null
-      short_type      = tdbfn[ type ]?.t2 ? type
       flat_node       = { qid, upid, type, position..., }
       @db SQL"savepoint svp_name;"
       flat_node       = @statements.insert_regular_node.get flat_node
