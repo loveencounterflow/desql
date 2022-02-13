@@ -122,50 +122,96 @@ class @Desql
         ( 'window_def',                         'wd'        ),
         ( 'window_frame',                       'wf'        ),
         ( 'window_ref',                         'wr'        );"""
+    #.......................................................................................................
     for name in [
-        'k select'
-        'k where'
-        'k insert'
-        'k insert into'
-        'k generated'
+        'i function name'
+        'i join on col name'
+        'i join on tbl alias'
+        'i join on tbl name'
+        'i order by col name'
+        'i order by tbl name'
+        'i o-t-her'
+        'i select from col alias'
+        'i select from col name'
+        'i select from tbl alias'
+        'i select from tbl name'
+        'k generated always as'
         'k generated always'
-        'k order'
-        'k order by'
+        'k generated'
+        'k insert into'
+        'k insert'
+        'k join on'
+        'k join using'
+        'k join'
         'k order by ascending'
         'k order by descending'
-        'k join'
-        'k join using'
-        'k join on'
-        'k window'
+        'k order by'
+        'k order'
+        'k select from'
+        'k select'
+        'k where'
         'k window as'
+        'k window'
         'k with'
-        'i select from tbl name'
-        'i select from tbl alias'
-        'i select from col name'
-        'i select from col alias'
-        'i order by tbl name'
-        'i order by col name'
-        'i join on tbl name'
-        'i join on tbl alias'
-        'i join on col name' ]
-      code = @_code_from_tcat_name name
+        's bracket round left'
+        's bracket round right'
+        's co-lon'
+        's com-ma'
+        's full-stop'
+        's o-perator'
+        's semi-colon'
+        's white-space' ]
+      { code, name, } = @_code_and_name_from_tcat_name name
       try
         @db SQL"insert into tcats ( code, name ) values ( $code, $name )", { code, name, }
       catch error
         debug error.name
-        throw error unless error.code is 'SQLITE_CONSTRAINT_UNIQUE'
+        throw error unless error.code in [ 'SQLITE_CONSTRAINT_UNIQUE', 'SQLITE_CONSTRAINT_PRIMARYKEY', ]
         throw new Error "^desql/_procure_infradata@1^ tcat code: #{rpr code} (name: #{rpr name}) is not unique"
+    #.......................................................................................................
+    for [ name, matcher, ] in [
+      [ 'i function name', '-fc-fn-qn-i-[uq]i-t$' ]
+
+      [ 'view name',                                '-cv-mi-eci-i-[uq]i-t$'                     ]
+      [ 'table name in fqn (`t.col`)',              '-dref-cref-i-[uq]i-t$'                     ]
+      [ 'col name in fqn (`t.col`)',                '-dref-i-[uq]i-t$'                          ]
+      [ 'col name in fqn (`t.col`) (also SQL kw)',  '-dref-i-[uq]i-ansinr-t$'                   ]
+      [ 'col name in select',                       '-select-nes-ne-e-pd-ve.*-cref-i-[uq]i-t$'  ]
+      [ 'create table name',                        '-ctable-ctableh-mi-eci-i-[uq]i-t$'         ]
+      [ 'create view name',                         '-cview-mi-eci-i-[uq]i-t$'                  ]
+      [ 'table name',                               '-tn-.*-i-[uq]i-t$'                         ]
+      [ 'table alias',                              '-tn-ta-[uq]i-t$'                           ]
+      [ 'col alias',                                '-nes-ne-eci-i-[uq]i-t$'                    ]
+      [ 'col alias (also SQL kw)',                  '-nes-ne-eci-i-[uq]i-ansinr-t$'             ]
+      [ 'col in order by',                          '-qo-si-e-pd-ve-cref-i-[uq]i-t$'            ]
+      [ 'id in join criteria',                      '-jc[ou]-.*-i-[uq]i-t$'                     ]
+      #.......................................................................................................
+      [ 'i o-t-her',                      '-[uq]i-t$'                                 ]
+      [ 'literal',                                  '-c-.*-t$'                                  ] ]
+      { code, name, } = @_code_and_name_from_tcat_name name
+      if ( @db.single_value SQL"select count(*) from tcats where code = $code", { code, } ) is 0
+        code  = "X#{code}"
+        name  = "X #{name}"
+        @db SQL"insert into tcats ( code, name ) values ( $code, $name )", { code, name, }
+      @db SQL"insert into tcat_rules ( code, matcher ) values ( $code, $matcher );", { code, matcher, }
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _code_from_tcat_name: ( name ) ->
-    switch name[ 0 ]
+  _code_and_name_from_tcat_name: ( name ) ->
+    code  = name.replace /-/g, ' '
+    name  = name.replace /-/g, ''
+    switch code[ 0 ]
       when 'k'
-        head  = name.replace /^(.)\s+(\S{1,3}[^aeiou]).*$/, '$1$2'
-        tail  = name.replace /^\S+\s+\S+\s*/, ''
+        # group letter + up to four letters of word 1 but no trailing vowel + initials of words 2 and on
+        head  = code.replace /^(.)\s+(\S{1,3}[^aeiou]).*$/, '$1$2'
+        tail  = code.replace /^\S+\s+\S+\s*/, ''
         tail  = tail.replace /(?:^|\s+)(.)\S*/g, '$1'
-        return head + tail
-    return name.replace /(?:^|\s+)(.)\S*/g, '$1'
+        code  = head + tail
+      else
+        # default: group letter + initials of following words
+        code  = code.replace /(?:^|\s+)(.)\S*/g, '$1'
+    return { code, name, }
 
   #---------------------------------------------------------------------------------------------------------
   _procure_infrastructure: ->
@@ -177,23 +223,30 @@ class @Desql
       create table ntypes ( -- node types
           name    text not null primary key,
           short   text not null unique );"""
-    # #.......................................................................................................
-    # @db SQL"""
-    #   create table tcats ( -- terminal category codes
-    #       code    text not null primary key,
-    #       kind    text not null generated always as ( substring( code, 1, 1 ) ) virtual,
-    #       part    text not null generated always as ( substring( code, 2, 1 ) ) virtual,
-    #       role    text not null generated always as ( substring( code, 3, 1 ) ) virtual,
-    #       name    text not null );"""
-    #     # check ( std_re_is_match( part, '^[A-Z]$'     ) ),
-    #     # check ( std_re_is_match( role, '^[a-z0-9]$'  ) ) );"""
     #.......................................................................................................
     @db SQL"""
       create table tcats ( -- terminal category codes
           code    text not null primary key,
           name    text not null unique );"""
-        # check ( std_re_is_match( part, '^[A-Z]$'     ) ),
-        # check ( std_re_is_match( role, '^[a-z0-9]$'  ) ) );"""
+    #.......................................................................................................
+    @db SQL"""
+      create table tcat_rules (
+          id      integer not null primary key,
+          code    text not null references tcats,
+          type    text not null default 're',
+          matcher text not null,
+        check ( type = 're' ) );"""
+    #.......................................................................................................
+    @db SQL"""
+      create view tcat_matches as select
+          tc.code   as code,
+          tc.name   as name,
+          tr.id     as trid,
+          nd.*
+        from nodes      as nd
+        join tcat_rules as tr on ( std_re_is_match( nd.path, tr.matcher ) )
+        join tcats      as tc using ( code )
+        ;"""
     #.......................................................................................................
     @db SQL"""
       create table queries (
