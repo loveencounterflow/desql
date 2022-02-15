@@ -198,19 +198,19 @@ class @Desql
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _code_and_name_from_tcat_name: ( name ) ->
-    code  = name.replace /-/g, ' '
-    name  = name.replace /-/g, ''
+  _code_and_name_from_tcat_name: ( cname ) ->
+    code  = cname.replace /-/g, ' '
+    name  = cname.replace /-/g, ''
     switch code[ 0 ]
-      when 'k'
+      when 'xxx'
+        # group letter + initials of following words
+        code  = code.replace /(?:^|\s+)(.)\S*/g, '$1'
+      else
         # group letter + up to four letters of word 1 but no trailing vowel + initials of words 2 and on
-        head  = code.replace /^(.)\s+(\S{1,3}[^aeiou]).*$/, '$1$2'
+        head  = code.replace /^(\S+)\s+(\S{1,3}[^aeiou\s]?).*$/, '$1$2'
         tail  = code.replace /^\S+\s+\S+\s*/, ''
         tail  = tail.replace /(?:^|\s+)(.)\S*/g, '$1'
         code  = head + tail
-      else
-        # default: group letter + initials of following words
-        code  = code.replace /(?:^|\s+)(.)\S*/g, '$1'
     return { code, name, }
 
   #---------------------------------------------------------------------------------------------------------
