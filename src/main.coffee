@@ -132,20 +132,20 @@ class @Desql
         #...................................................................................................
         ### identifiers ###
         'i function name'
-        'i join on col name'
-        'i join on tbl alias'
-        'i join on tbl name'
-        'i order by col name'
-        'i order by tbl name'
-        'i other'
-        'i from col alias'
+        # 'i join on col name'
+        # 'i join on tbl alias'
+        # 'i join on tbl name'
+        # 'i order by col name'
+        # 'i order by tbl name'
+        # 'i other'
+        # 'i from col alias'
         # 'i from col name'
+        # 'i from'±±
 
-        'i from'
         'i col'
         'i tbl'
         'i alias'
-        'i name'
+        'i real name'
 
         #...................................................................................................
         ### keywords ###
@@ -195,19 +195,21 @@ class @Desql
       [ 'i alias',          '-tn-ta-[uq]i-t',                   ]
       [ 'i col',            '-ve-cref-i-[uq]i-t$',              ]
       [ 'i col',            '-dref-i-[uq]i-t$',                 ]
-      [ 'i name',           '-ve-cref-i-[uq]i-t$',              ]
-      [ 'i from',           '-s-.*-from-.*-i-[uq]i-t$',         ]
+      [ 'i col',            '-ne-eci-i-[uq]i-t$',                 ]
+      [ 'i alias',          '-ne-eci-i-[uq]i-t$',                 ]
+      [ 'i real name',      '-ve-cref-i-[uq]i-t$',              ]
       [ 'i function name',  '-fc-fn-qn-i-[uq]i-t$'              ]
-      [ 'i name',           '-cview-mi-eci-i-[uq]i-t$',         ]
-      [ 'i name',           '-tn-.*-i-[uq]i-t$',                ]
-      # [ 'i other',          '-[uq]i-t$',                        ]
+      [ 'i real name',      '-cview-mi-eci-i-[uq]i-t$',         ]
+      [ 'i real name',      '-tn-.*-i-[uq]i-t$',                ]
+      [ 'i real name',      '-ve-dref-i-[uq]i-t$',                ]
       [ 'i tbl',            '-cview-mi-eci-i-[uq]i-t$',         ]
       [ 'i tbl',            '-tn-.*-i-[uq]i-t$',                ]
       [ 'i tbl',            '-tn-ta-[uq]i-t',                   ]
       [ 'i tbl',            '-dref-cref-i-[uq]i-t',             ]
+      # [ 'i other',        '-[uq]i-t$',                        ]
       #.....................................................................................................
-      # [ 'k from',           '-from-t$',                         ]
-      # [ 'k select',         '-select-t$',                       ]
+      [ 'k from',           '-from-t$',                         ]
+      [ 'k select',         '-select-t$',                       ]
       #.....................................................................................................
       [ 'l other',          '-c-.*-t$',                         ]
       #.....................................................................................................
