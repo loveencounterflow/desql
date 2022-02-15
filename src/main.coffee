@@ -129,6 +129,7 @@ class @Desql
         'a create view'
         'a select'
         'a from'
+        'a join'
         #...................................................................................................
         ### identifiers ###
         'i function name'
@@ -167,6 +168,7 @@ class @Desql
         'k window as'
         'k window'
         'k with'
+        #...................................................................................................
         'l other'
         #...................................................................................................
         ### symbols (punctuation) ###
@@ -191,22 +193,24 @@ class @Desql
       [ 'a create view',    '-cview-',                          ]
       [ 'a from',           '-from-',                           ]
       [ 'a select',         '-select-',                         ]
+      [ 'a join',           '-jr-',                             ]
       #.....................................................................................................
-      [ 'i alias',          '-tn-ta-[uq]i-t',                   ]
-      [ 'i col',            '-ve-cref-i-[uq]i-t$',              ]
-      [ 'i col',            '-dref-i-[uq]i-t$',                 ]
-      [ 'i col',            '-ne-eci-i-[uq]i-t$',                 ]
-      [ 'i alias',          '-ne-eci-i-[uq]i-t$',                 ]
-      [ 'i real name',      '-ve-cref-i-[uq]i-t$',              ]
-      [ 'i function name',  '-fc-fn-qn-i-[uq]i-t$'              ]
-      [ 'i real name',      '-cview-mi-eci-i-[uq]i-t$',         ]
-      [ 'i real name',      '-tn-.*-i-[uq]i-t$',                ]
-      [ 'i real name',      '-ve-dref-i-[uq]i-t$',                ]
-      [ 'i tbl',            '-cview-mi-eci-i-[uq]i-t$',         ]
-      [ 'i tbl',            '-tn-.*-i-[uq]i-t$',                ]
-      [ 'i tbl',            '-tn-ta-[uq]i-t',                   ]
-      [ 'i tbl',            '-dref-cref-i-[uq]i-t',             ]
-      # [ 'i other',        '-[uq]i-t$',                        ]
+      [ 'i alias',          '-tn-ta-(ui|qia-qi)-t',                   ]
+      [ 'i col',            '-ve-cref-i-(ui|qia-qi)-t$',              ]
+      [ 'i col',            '-dref-i-(ui|qia-qi)-t$',                 ]
+      [ 'i col',            '-ne-eci-i-(ui|qia-qi)-t$',                 ]
+      [ 'i col',            '-is-eci-i-(ui|qia-qi)-t$',                 ]
+      [ 'i alias',          '-ne-eci-i-(ui|qia-qi)-t$',                 ]
+      [ 'i real name',      '-ve-cref-i-(ui|qia-qi)-t$',              ]
+      [ 'i function name',  '-fc-fn-qn-i-(ui|qia-qi)-t$'              ]
+      [ 'i real name',      '-cview-mi-eci-i-(ui|qia-qi)-t$',         ]
+      [ 'i real name',      '-tn-.*-i-(ui|qia-qi)-t$',                ]
+      [ 'i real name',      '-ve-dref-i-(ui|qia-qi)-t$',                ]
+      [ 'i tbl',            '-cview-mi-eci-i-(ui|qia-qi)-t$',         ]
+      [ 'i tbl',            '-tn-.*-i-(ui|qia-qi)-t$',                ]
+      [ 'i tbl',            '-tn-ta-(ui|qia-qi)-t',                   ]
+      [ 'i tbl',            '-dref-cref-i-(ui|qia-qi)-t',             ]
+      # [ 'i other',          '-(ui|qia-qi)-t$',                        ]
       #.....................................................................................................
       [ 'k from',           '-from-t$',                         ]
       [ 'k select',         '-select-t$',                       ]
@@ -218,23 +222,23 @@ class @Desql
       #.....................................................................................................
       ]
 
-      # [ 'view name',                                '-cv-mi-eci-i-[uq]i-t$'                     ]
-      # [ 'tbl name in fqn (`t.col`)',              '-dref-cref-i-[uq]i-t$'                     ]
-      # [ 'col name in fqn (`t.col`)',                '-dref-i-[uq]i-t$'                          ]
-      # [ 'col name in fqn (`t.col`) (also SQL kw)',  '-dref-i-[uq]i-ansinr-t$'                   ]
-      # [ 'col name in select',                       '-select-nes-ne-e-pd-ve.*-cref-i-[uq]i-t$'  ]
-      # [ 'create tbl name',                        '-ctable-ctableh-mi-eci-i-[uq]i-t$'         ]
-      # [ 'create view name',                         '-cview-mi-eci-i-[uq]i-t$'                  ]
-      # [ 'tbl alias',                              '-tn-ta-[uq]i-t$'                           ]
-      # [ 'col alias',                                '-nes-ne-eci-i-[uq]i-t$'                    ]
-      # [ 'col alias (also SQL kw)',                  '-nes-ne-eci-i-[uq]i-ansinr-t$'             ]
-      # [ 'col in order by',                          '-qo-si-e-pd-ve-cref-i-[uq]i-t$'            ]
-      # [ 'id in join criteria',                      '-jc[ou]-.*-i-[uq]i-t$'                     ]
+      # [ 'view name',                                '-cv-mi-eci-i-(ui|qia-qi)-t$'                     ]
+      # [ 'tbl name in fqn (`t.col`)',              '-dref-cref-i-(ui|qia-qi)-t$'                     ]
+      # [ 'col name in fqn (`t.col`)',                '-dref-i-(ui|qia-qi)-t$'                          ]
+      # [ 'col name in fqn (`t.col`) (also SQL kw)',  '-dref-i-(ui|qia-qi)-ansinr-t$'                   ]
+      # [ 'col name in select',                       '-select-nes-ne-e-pd-ve.*-cref-i-(ui|qia-qi)-t$'  ]
+      # [ 'create tbl name',                        '-ctable-ctableh-mi-eci-i-(ui|qia-qi)-t$'         ]
+      # [ 'create view name',                         '-cview-mi-eci-i-(ui|qia-qi)-t$'                  ]
+      # [ 'tbl alias',                              '-tn-ta-(ui|qia-qi)-t$'                           ]
+      # [ 'col alias',                                '-nes-ne-eci-i-(ui|qia-qi)-t$'                    ]
+      # [ 'col alias (also SQL kw)',                  '-nes-ne-eci-i-(ui|qia-qi)-ansinr-t$'             ]
+      # [ 'col in order by',                          '-qo-si-e-pd-ve-cref-i-(ui|qia-qi)-t$'            ]
+      # [ 'id in join criteria',                      '-jc[ou]-.*-i-(ui|qia-qi)-t$'                     ]
       #.....................................................................................................
       { code, name, } = @_code_and_name_from_tcat_name name
       if ( @db.single_value SQL"select count(*) from tcats where code = $code", { code, } ) is 0
-        code  = "X#{code}"
-        name  = "X #{name}"
+        code  = "x#{code}"
+        name  = "x #{name}"
         @db SQL"insert into tcats ( code, name ) values ( $code, $name )", { code, name, }
       @db SQL"insert into tcat_rules ( code, matcher ) values ( $code, $matcher );", { code, matcher, }
     #.......................................................................................................
