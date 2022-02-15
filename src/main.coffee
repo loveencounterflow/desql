@@ -124,6 +124,13 @@ class @Desql
         ( 'window_ref',                         'wr'        );"""
     #.......................................................................................................
     for name in [
+        #...................................................................................................
+        ### areas ###
+        'a create view'
+        'a select'
+        'a from'
+        #...................................................................................................
+        ### identifiers ###
         'i function name'
         'i join on col name'
         'i join on tbl alias'
@@ -131,14 +138,17 @@ class @Desql
         'i order by col name'
         'i order by tbl name'
         'i other'
-        'i select from col alias'
-        # 'i select from col name'
-        'i select from tbl alias'
+        'i from col alias'
+        # 'i from col name'
 
-        'i select from'
-        'i tbl name'
-        'i col name'
+        'i from'
+        'i col'
+        'i tbl'
+        'i alias'
+        'i name'
 
+        #...................................................................................................
+        ### keywords ###
         'k generated always as'
         'k generated always'
         'k generated'
@@ -151,14 +161,15 @@ class @Desql
         'k order by descending'
         'k order by'
         'k order'
-        'k select from'
+        'k from'
         'k select'
         'k where'
         'k window as'
         'k window'
         'k with'
         'l other'
-        'r create view'
+        #...................................................................................................
+        ### symbols (punctuation) ###
         's bracket round left'
         's bracket round right'
         's colon'
@@ -176,18 +187,33 @@ class @Desql
         throw new Error "^desql/_procure_infradata@1^ tcat code: #{rpr code} (name: #{rpr name}) is not unique"
     #.......................................................................................................
     for [ name, matcher, ] in [
-      [ 'i function name', '-fc-fn-qn-i-[uq]i-t$' ]
-      [ 'i other',          '-i-[uq]i-t$',              ]
-      [ 'l other',          '-c-.*-t$',                 ]
-      [ 'r create view',    '-cv-',                     ]
-      [ 'i select from',    '-s-.*-from-.*-i-[uq]i-t$', ]
-      [ 'k select from',    '-s-.*-from-t$',            ]
-      [ 'k select',         '-s-.*-select-t$',          ]
-      [ 'i tbl name',       '-tn-.*-i-[uq]i-t$',        ]
-      [ 'i col name',       '-ve-cref-i-[uq]i-t$',      ]
-      [ 's dot',            '-ve-dref-t$',              ]
-      ]
       #.....................................................................................................
+      [ 'a create view',    '-cview-',                          ]
+      [ 'a from',           '-from-',                           ]
+      [ 'a select',         '-select-',                         ]
+      #.....................................................................................................
+      [ 'i alias',          '-tn-ta-[uq]i-t',                   ]
+      [ 'i col',            '-ve-cref-i-[uq]i-t$',              ]
+      [ 'i col',            '-dref-i-[uq]i-t$',                 ]
+      [ 'i name',           '-ve-cref-i-[uq]i-t$',              ]
+      [ 'i from',           '-s-.*-from-.*-i-[uq]i-t$',         ]
+      [ 'i function name',  '-fc-fn-qn-i-[uq]i-t$'              ]
+      [ 'i name',           '-cview-mi-eci-i-[uq]i-t$',         ]
+      [ 'i name',           '-tn-.*-i-[uq]i-t$',                ]
+      # [ 'i other',          '-[uq]i-t$',                        ]
+      [ 'i tbl',            '-cview-mi-eci-i-[uq]i-t$',         ]
+      [ 'i tbl',            '-tn-.*-i-[uq]i-t$',                ]
+      [ 'i tbl',            '-tn-ta-[uq]i-t',                   ]
+      [ 'i tbl',            '-dref-cref-i-[uq]i-t',             ]
+      #.....................................................................................................
+      # [ 'k from',           '-from-t$',                         ]
+      # [ 'k select',         '-select-t$',                       ]
+      #.....................................................................................................
+      [ 'l other',          '-c-.*-t$',                         ]
+      #.....................................................................................................
+      [ 's dot',            '-ve-dref-t$',                      ]
+      #.....................................................................................................
+      ]
 
       # [ 'view name',                                '-cv-mi-eci-i-[uq]i-t$'                     ]
       # [ 'tbl name in fqn (`t.col`)',              '-dref-cref-i-[uq]i-t$'                     ]
@@ -253,6 +279,9 @@ class @Desql
     #.......................................................................................................
     @db SQL"""
       create view tcat_matches as select
+          nd.qid    as qid,
+          nd.id     as id,
+          nd.xtra   as xtra,
           tc.code   as code,
           tc.name   as name,
           -- tr.id     as rid,
@@ -263,7 +292,7 @@ class @Desql
         from nodes      as nd
         join tcat_rules as tr on ( std_re_is_match( nd.path, tr.matcher ) )
         join tcats      as tc using ( code )
-        order by nd.pos1
+        order by nd.qid, nd.pos1
         ;"""
     #.......................................................................................................
     @db SQL"""
