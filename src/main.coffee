@@ -130,11 +130,15 @@ class @Desql
         'i join on tbl name'
         'i order by col name'
         'i order by tbl name'
-        'i o-t-her'
+        'i other'
         'i select from col alias'
-        'i select from col name'
+        # 'i select from col name'
         'i select from tbl alias'
-        'i select from tbl name'
+
+        'i select from'
+        'i tbl name'
+        'i col name'
+
         'k generated always as'
         'k generated always'
         'k generated'
@@ -153,14 +157,16 @@ class @Desql
         'k window as'
         'k window'
         'k with'
+        'l other'
+        'r create view'
         's bracket round left'
         's bracket round right'
-        's co-lon'
-        's com-ma'
-        's full-stop'
+        's colon'
+        's comma'
+        's dot'
         's o-perator'
         's semi-colon'
-        's white-space' ]
+        's spc' ]
       { code, name, } = @_code_and_name_from_tcat_name name
       try
         @db SQL"insert into tcats ( code, name ) values ( $code, $name )", { code, name, }
