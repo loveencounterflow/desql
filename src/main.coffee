@@ -255,11 +255,15 @@ class @Desql
       create view tcat_matches as select
           tc.code   as code,
           tc.name   as name,
-          tr.id     as trid,
-          nd.*
+          -- tr.id     as rid,
+          nd.path   as path,
+          nd.pos1   as pos1,
+          nd.pos2   as pos2,
+          nd.txt    as txt
         from nodes      as nd
         join tcat_rules as tr on ( std_re_is_match( nd.path, tr.matcher ) )
         join tcats      as tc using ( code )
+        order by nd.pos1
         ;"""
     #.......................................................................................................
     @db SQL"""
