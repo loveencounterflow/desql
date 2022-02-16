@@ -23,9 +23,27 @@
 
 # 𓃕DeSQL SQL Parser
 
-<!-- clarify relation to 𓆤DBay -->
+* 𓃕DeSQL = **D**iagram to **E**xplain **S**QL (𓃕 = Holy Cow!)
 
 🚧 Work in progress 🚧
+
+
+Goals and components:
+
+* SQL Parser, based on [`rhombic`](https://github.com/contiamo/rhombic)
+  * parsing results as flat tables (views)
+    * with tags to identify areas, roles (such as 'alias for a column in the `where` clause')
+    * and source code positions
+
+* generate simplified, dumbed-down ('trashed') copy of a given DB to
+  * feed to analysis tools that might not understand the full gamut of SQL as understood by SQLite
+  * or, in fact, feed to the SQLite command line tool which may be another version
+  * also to take out all user-defined functions (UDFs) that are not available with the `sqlite3` CLI
+
+* generate diagrams like / with
+  * [Vega Reorderable Matrix](https://vega.github.io/vega/examples/reorderable-matrix/)
+    to show *all* relations between tables and views (PKs, FKs, but also references used to build
+    views, `order by` clauses, `join`s &c).
 
 ## Goal
 
@@ -68,6 +86,7 @@ a single query. All these shortcomings will be addressed:
   which constitues silent failure; ensure 100% source code coverage (whitespace may be left out,
   but not comments and also not unsyntactic garbage)
 * **[–]** fix line, column numbers for coverage misses (whitespace and material stretches)
+* **[–]** clarify relation to 𓆤DBay
 
 
 
