@@ -13,12 +13,10 @@ urge                      = CND.get_logger 'urge',      badge
 help                      = CND.get_logger 'help',      badge
 whisper                   = CND.get_logger 'whisper',   badge
 echo                      = CND.echo.bind CND
-{ freeze
-  lets }                  = require 'letsfreezethat'
 E                         = require './errors'
 H                         = require './helpers'
 { SQL }                   = H
-guy                       = require 'guy'
+GUY                       = require 'guy'
 FS                        = require 'fs'
 PATH                      = require 'path'
 
@@ -440,6 +438,6 @@ add_views = ( db ) ->
       dbay_trash_merge_lines( r1.txt, nxt_txt )  as r2
       order by r1.lnr, r1.tail, r2.vnr2;"""
   #-------------------------------------------------------------------------------------------------------
-  guy.props.hide db, '_trash_select_from_statements', SQL"select * from dbay_create_table_statements;"
+  GUY.props.hide db, '_trash_select_from_statements', SQL"select * from dbay_create_table_statements;"
   return db
 
