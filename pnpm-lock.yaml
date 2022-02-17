@@ -2,7 +2,7 @@ lockfileVersion: 5.3
 
 specifiers:
   cnd: ^9.2.2
-  dbay: 11.2.0
+  dbay: 12.0.0
   guy: ^4.0.0
   intertype: ^7.7.0
   just-snake-case: ^3.0.1
@@ -10,7 +10,7 @@ specifiers:
 
 dependencies:
   cnd: 9.2.2
-  dbay: 11.2.0
+  dbay: 12.0.0
   guy: 4.0.0
   intertype: 7.7.0
   just-snake-case: 3.0.1
@@ -56,8 +56,8 @@ packages:
       jsx-number-format: 0.1.4
     dev: false
 
-  /dbay/11.2.0:
-    resolution: {integrity: sha512-wmQBJJfk6Ku6QcHv8c0YPP9wSbLvPwPUb/Lc+UND0bgAIBIprkVFwX3/ONA9lApmabpB0H8Ge82eBw81osowkg==}
+  /dbay/12.0.0:
+    resolution: {integrity: sha512-hXeSQ9Qgbdq/qg3MCJneXf4qK76rvmhnSUtETwv0CEkCwfOVM+w0+WTQmkWUOl0t9S+j1263iSeDOwR4bQJgGg==}
     requiresBuild: true
     dependencies:
       cnd: 9.2.2
