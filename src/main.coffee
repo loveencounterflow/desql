@@ -43,6 +43,7 @@ class @Desql extends   \
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( P... ) ->
+    super()
     throw new Error "^345^ configuration settings not supported" if P.length > 0
     @db = new DBay()
     @_procure_infrastructure()
