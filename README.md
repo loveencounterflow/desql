@@ -231,6 +231,9 @@ a single query. All these shortcomings will be addressed:
   but not comments and also not unsyntactic garbage)
 * **[–]** fix line, column numbers for coverage misses (whitespace and material stretches)
 * **[–]** clarify relation to 𓆤DBay
+* **[–]** consider to implement iterating over statements instead of lines in `trash_to_sql()`
+* **[–]** consider to refactor trash into project `dbay-trash` b/c either it or (an additional module)
+  will be in need of an SQL parser to provide in-depth structural insights
 
 
 

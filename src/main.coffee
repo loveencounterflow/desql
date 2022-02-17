@@ -15,26 +15,31 @@ help                      = CND.get_logger 'help',      badge
 whisper                   = CND.get_logger 'whisper',   badge
 echo                      = CND.echo.bind CND
 #...........................................................................................................
+types                     = require './types'
 types                     = new ( require 'intertype' ).Intertype
-{ isa
-  equals
-  type_of
-  validate
-  validate_list_of }      = types.export()
 GUY                       = require 'guy'
 { DBay }                  = require 'dbay'
 { SQL }                   = DBay
 to_snake_case             = require 'just-snake-case'
 { antlr: ANTLR          } = require 'rhombic'
+{ DBay_trash            } = require './trash-mixin'
 
 
 #===========================================================================================================
 #
 #-----------------------------------------------------------------------------------------------------------
-class @Desql
+class @Desql extends   \
+  DBay_trash()
 
   @C: GUY.lft.freeze
     pathsep:  '-'
+    defaults:
+      #.....................................................................................................
+      dbay_trash_to_sql_cfg:
+        path:           false
+        overwrite:      false
+        walk:           false
+        _use_dot_cmds:  true
 
   #---------------------------------------------------------------------------------------------------------
   constructor: ( P... ) ->
