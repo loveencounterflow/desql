@@ -193,10 +193,9 @@ is parsed. In the `[akilsx]codes` columns the matching tags are displayed by tag
 
 Furthermore, there's `pos1` which gives the offset (character count) of the respective production, `txt`
 (the part of the query string being annotated), and `path` which traces the tree traversal akin to a path
-to a file in a file system (e.g. `-cview-q-qo-t` can be read as
-`/create-view/query/query-organization/terminal`, a path shared by both `order` and `by`; names have been
-taken from the `rhombic` parser). All nodes end in `-t` for `terminal` because all non-terminal nodes have
-been filtered out for conciseness.
+in a file system (e.g. `-cview-q-qo-t` can be read as `/create-view/query/query-organization/terminal`, a
+path shared by both `order` and `by`; names have been taken from the `rhombic` parser). All nodes end in
+`-t` for `terminal` because all non-terminal nodes have been filtered out for conciseness.
 
 ![](art/Screenshot%202022-02-17%20at%2011.18.31.png)
 
