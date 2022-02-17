@@ -19,6 +19,7 @@
       - [Properties of Trashed DBs](#properties-of-trashed-dbs)
       - [API](#api)
   - [Progress Notes](#progress-notes)
+    - [2022-02-17T11:22:23+01:00](#2022-02-17t1122230100)
     - [2022-02-11T21:20:17+01:00](#2022-02-11t2120170100)
   - [To Do](#to-do)
 
@@ -161,6 +162,43 @@ In any event, parameters that make no sense in the given combination (such as om
 
 
 ## Progress Notes
+
+### 2022-02-17T11:22:23+01:00
+
+A moderately comples SQL query
+
+```sql
+create view v as select
+    a,
+    b,
+    c,
+    f( d ) as k
+  from t
+  join t2 using ( uuu )
+  where e > 2
+  order by k desc, l, m;
+```
+
+is parsed. In the `[akilsx]codes` columns the matching tags are displayed by tag category:
+
+* `a` for **a**rea (aka 'clause' as in 'where clause', 'order-by clause'),
+* `k` for SQL **k**eywords (of which in the below only `select`, `from`, and `where` are recognized),
+* `i` for **i**dentifiers (`iali`: alias, `icol`: column, `ifuncn`: function, `irealn`: real name, `itbl`:
+  table, so column `k` which is tagged `iali, icol`, is recognized as 'an identifier naming an alias for a
+  column'),
+* `l` for **l**iterals (which are not important for the purpose at hand; the single example here is `2`,
+  tagged as `loth` ('other literal'), which is more than good enough),
+* `s` for **s**ymbols (i.e. punctuation such as `>`, `.`, `;`),
+* `x` for e**x**tras (an internal diagnostic field to prevent misspelled rule names from failing silently).
+
+Furthermore, there's `pos1` which gives the offset (character count) of the respective production, `txt`
+(the part of the query string being annotated), and `path` which traces the tree traversal akin to a path
+to a file in a file system (e.g. `-cview-q-qo-t` can be read as
+`/create-view/query/query-organization/terminal`, a path shared by both `order` and `by`; names have been
+taken from the `rhombic` parser). All nodes end in `-t` for `terminal` because all non-terminal nodes have
+been filtered out for conciseness.
+
+![](art/Screenshot%202022-02-17%20at%2011.18.31.png)
 
 ### 2022-02-11T21:20:17+01:00
 
