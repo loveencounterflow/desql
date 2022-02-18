@@ -426,6 +426,29 @@ class @Desql extends   \
         from coverage
         order by qid, id, xtra;"""
     #.......................................................................................................
+    @db SQL"""
+      create view terminals_with_grouped_tags as select distinct
+          n.path                                as path,
+          n.pos1                                as pos1,
+          n.type                                as type,
+          n.txt                                 as txt,
+          group_concat( m.code, ', ' )                                                  over w as codes,
+          group_concat( m.code, ', ' ) filter ( where substring( m.code, 1, 1 ) = 'a' ) over w as acodes,
+          group_concat( m.code, ', ' ) filter ( where substring( m.code, 1, 1 ) = 'k' ) over w as kcodes,
+          group_concat( m.code, ', ' ) filter ( where substring( m.code, 1, 1 ) = 'i' ) over w as icodes,
+          group_concat( m.code, ', ' ) filter ( where substring( m.code, 1, 1 ) = 'l' ) over w as lcodes,
+          group_concat( m.code, ', ' ) filter ( where substring( m.code, 1, 1 ) = 's' ) over w as scodes,
+          group_concat( m.code, ', ' ) filter ( where substring( m.code, 1, 1 ) = 'x' ) over w as xcodes
+        from nodes              as n
+        left join tcat_matches  as m using ( qid, id, xtra )
+        where true
+          and ( n.type in ( 'terminal', 'spc', 'miss' ) )
+        window w as (
+          partition by n.pos1, n.pos2
+          order by m.code
+          rows between unbounded preceding and unbounded following )
+        order by n.pos1;"""
+    #.......................................................................................................
     return null
 
   #---------------------------------------------------------------------------------------------------------
