@@ -13,8 +13,7 @@ urge                      = CND.get_logger 'urge',      badge
 help                      = CND.get_logger 'help',      badge
 whisper                   = CND.get_logger 'whisper',   badge
 echo                      = CND.echo.bind CND
-E                         = require './errors'
-H                         = require './helpers'
+H                         = require 'dbay/lib/helpers'
 { SQL }                   = H
 GUY                       = require 'guy'
 FS                        = require 'fs'
@@ -72,14 +71,14 @@ PATH                      = require 'path'
   _trash_get_path: ( path, extension ) ->
     return path if ( type = @types.type_of path ) is 'text'
     unless path is true
-      throw new E.DBay_internal_error '^dbay/trash@1^', "expected a text or `true`, got a #{type}"
+      throw new @db.E.DBay_internal_error '^desql/trash@1^', "expected a text or `true`, got a #{type}"
     clasz = @constructor
     return PATH.join clasz.C.autolocation, @rnd.get_random_filename extension
 
   #---------------------------------------------------------------------------------------------------------
   create_trashlib: ->
     return null if @_trash_created
-    add_views @
+    add_views @db
     @_trash_created = true
     return null
 
