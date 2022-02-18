@@ -196,10 +196,10 @@ class @Desql extends   \
     #.......................................................................................................
     for [ name, matcher, ] in [
       #.....................................................................................................
-      [ 'a create view',    '-cview-',                          ]
-      [ 'a from',           '-from-',                           ]
-      [ 'a select',         '-select-',                         ]
-      [ 'a join',           '-jr-',                             ]
+      [ 'a create view',    '-cview-',                                    ]
+      [ 'a from',           '-from-',                                     ]
+      [ 'a select',         '-select-',                                   ]
+      [ 'a join',           '-jr-',                                       ]
       #.....................................................................................................
       [ 'i alias',          '-tn-ta-(ui|qia-qi)(-ansinr)?-t',             ]
       [ 'i col',            '-ve-cref-i-(ui|qia-qi)(-ansinr)?-t$',        ]
@@ -218,28 +218,15 @@ class @Desql extends   \
       [ 'i tbl',            '-dref-cref-i-(ui|qia-qi)(-ansinr)?-t',       ]
       # [ 'i other',          '-(ui|qia-qi)-t$',                        ]
       #.....................................................................................................
-      [ 'k from',           '-from-t$',                         ]
-      [ 'k select',         '-select-t$',                       ]
-      [ 'k where',          '-where-t$',                       ]
+      [ 'k from',           '-from-t$',                                   ]
+      [ 'k select',         '-select-t$',                                 ]
+      [ 'k where',          '-where-t$',                                  ]
       #.....................................................................................................
-      [ 'l other',          '-c-.*-t$',                         ]
+      [ 'l other',          '-c-.*-t$',                                   ]
       #.....................................................................................................
-      [ 's dot',            '-ve-dref-t$',                      ]
+      [ 's dot',            '-ve-dref-t$',                                ]
       #.....................................................................................................
       ]
-
-      # [ 'view name',                                '-cv-mi-eci-i-(ui|qia-qi)-t$'                     ]
-      # [ 'tbl name in fqn (`t.col`)',              '-dref-cref-i-(ui|qia-qi)-t$'                     ]
-      # [ 'col name in fqn (`t.col`)',                '-dref-i-(ui|qia-qi)-t$'                          ]
-      # [ 'col name in fqn (`t.col`) (also SQL kw)',  '-dref-i-(ui|qia-qi)-ansinr-t$'                   ]
-      # [ 'col name in select',                       '-select-nes-ne-e-pd-ve.*-cref-i-(ui|qia-qi)-t$'  ]
-      # [ 'create tbl name',                        '-ctable-ctableh-mi-eci-i-(ui|qia-qi)-t$'         ]
-      # [ 'create view name',                         '-cview-mi-eci-i-(ui|qia-qi)-t$'                  ]
-      # [ 'tbl alias',                              '-tn-ta-(ui|qia-qi)-t$'                           ]
-      # [ 'col alias',                                '-nes-ne-eci-i-(ui|qia-qi)-t$'                    ]
-      # [ 'col alias (also SQL kw)',                  '-nes-ne-eci-i-(ui|qia-qi)-ansinr-t$'             ]
-      # [ 'col in order by',                          '-qo-si-e-pd-ve-cref-i-(ui|qia-qi)-t$'            ]
-      # [ 'id in join criteria',                      '-jc[ou]-.*-i-(ui|qia-qi)-t$'                     ]
       #.....................................................................................................
       { code, name, } = @_code_and_name_from_tcat_name name
       if ( @db.single_value SQL"select count(*) from tcats where code = $code", { code, } ) is 0
