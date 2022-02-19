@@ -132,6 +132,7 @@ class @Desql extends   \
     for name in [
         #...................................................................................................
         ### areas ###
+        'a create table'
         'a create view'
         'a select'
         'a from'
@@ -153,7 +154,6 @@ class @Desql extends   \
         'i tbl'
         'i alias'
         'i real name'
-
         #...................................................................................................
         ### keywords ###
         'k generated always as'
@@ -174,6 +174,7 @@ class @Desql extends   \
         'k window as'
         'k window'
         'k with'
+        'k type'
         #...................................................................................................
         'l other'
         #...................................................................................................
@@ -197,6 +198,7 @@ class @Desql extends   \
     for [ name, matcher, ] in [
       #.....................................................................................................
       [ 'a create view',    '-cview-',                                    ]
+      [ 'a create table',   '-tview-',                                    ]
       [ 'a from',           '-from-',                                     ]
       [ 'a select',         '-select-',                                   ]
       [ 'a join',           '-jr-',                                       ]
@@ -206,6 +208,7 @@ class @Desql extends   \
       [ 'i col',            '-dref-i-(ui|qia-qi)(-ansinr)?-t$',           ]
       [ 'i col',            '-ne-eci-i-(ui|qia-qi)(-ansinr)?-t$',         ]
       [ 'i col',            '-is-eci-i-(ui|qia-qi)(-ansinr)?-t$',         ]
+      [ 'i col',            '-ctable-cltl-clt-eci-i-(ui|qia-qi)(-ansinr)?-t$',         ]
       [ 'i alias',          '-ne-eci-i-(ui|qia-qi)(-ansinr)?-t$',         ]
       [ 'i real name',      '-ve-cref-i-(ui|qia-qi)(-ansinr)?-t$',        ]
       [ 'i function name',  '-fc-fn-qn-i-(ui|qia-qi)(-ansinr)?-t$'        ]
@@ -213,6 +216,7 @@ class @Desql extends   \
       [ 'i real name',      '-tn-.*-i-(ui|qia-qi)(-ansinr)?-t$',          ]
       [ 'i real name',      '-ve-dref-i-(ui|qia-qi)(-ansinr)?-t$',        ]
       [ 'i tbl',            '-cview-mi-eci-i-(ui|qia-qi)(-ansinr)?-t$',   ]
+      [ 'i tbl',            '-ctable-ctableh-mi-eci-i-(ui|qia-qi)(-ansinr)?-t$',   ]
       [ 'i tbl',            '-tn-.*-i-(ui|qia-qi)(-ansinr)?-t$',          ]
       [ 'i tbl',            '-tn-ta-(ui|qia-qi)(-ansinr)?-t',             ]
       [ 'i tbl',            '-dref-cref-i-(ui|qia-qi)(-ansinr)?-t',       ]
@@ -221,6 +225,7 @@ class @Desql extends   \
       [ 'k from',           '-from-t$',                                   ]
       [ 'k select',         '-select-t$',                                 ]
       [ 'k where',          '-where-t$',                                  ]
+      [ 'k type',          '-ctable-cltl-clt-pdt-i-(ui|qia-qi)(-ansinr)?-t',                                  ]
       #.....................................................................................................
       [ 'l other',          '-c-.*-t$',                                   ]
       #.....................................................................................................
