@@ -235,5 +235,103 @@ a single query. All these shortcomings will be addressed:
 * **[–]** consider to refactor trash into project `dbay-trash` b/c either it or (an additional module)
   will be in need of an SQL parser to provide in-depth structural insights
 
+* **[–]** implement benchmarking / profiling tools to give users a better chance and an easier time
+  with finding sopurces for bad performance:
+
+  * in one case I noticed a particularly bad performance in a seemingly simple query `select * from t`
+    which, however, referenced the last view in an entire suite of views; the row count was only ≈1,000, but
+    the query took almost 3 seconds. I replaced two (simplistic) UDF calls and replaced them with a simple
+    `x = ''` test; this brought the execution down by a whopping 0.5s which should mean that that function
+    must have gotten called *a lot* of times. Still, with 2.5s being far too long I came up with the
+    following: just iterate over all tables and views, preferrably in the order they are defined in the SQL
+    source (which should somewhat match their topological sort order), and measure the timings (the original
+    idea was really to do `select * from $tablename`, but it turns out `select count(*) from $tablename`
+    suffices and delivers another metric, row counts):
+
+    ```coffee
+    { L, I, } = db.sql
+    timings   = []
+    for { name, } from db SQL"""
+      with v1 as ( select row_number() over () as nr, name, type from sqlite_schema )
+      select name from v1 where type in ( 'table', 'view' ) order by nr;"""
+      sql   = SQL"select count(*) as count from #{I name};"
+      count = time name, -> db.single_value sql±±
+      dt    = TIME.toFixed 3                    ### NOTE contains time of last call to `time()` ###
+      timings.push { name, count, dt, }
+    H.tabulate "timings", timings
+    ```
+
+    What this does is it selects rows from `sqlite_schema` *without* filtering but adding row numbers along
+    the way, in the hope that filter-less `select`ing will keep the rows in their original order; the query
+    then filters for tables and views. For each relation name, a row-counting query is constructed and run
+    with a stopwatch running. Relation names, row counts, and timings are then tabulated:
+
+    ```
+    ┌────────────────────────┬───────┬───────┐
+    │name                    │count  │dt     │
+    ├────────────────────────┼───────┼───────┤
+    │mrg_datasources         │1      │0.000  │
+    │mrg_mirror              │903    │0.000  │
+    │mrg_raw_mirror          │903    │0.000  │
+    │mrg_rwnmirror           │903    │0.001  │
+    │mrg_parlnrs0            │802    │0.004  │
+    │mrg_parlnrs             │97     │0.003  │ <--- good
+    │mrg_parmirror           │903    │2.132  │ <--- bad!
+    │mrg_pars0               │97     │2.134  │
+    │mrg_pars                │97     │2.133  │
+    │mrg_wspars              │198    │2.404  │
+    │mrg_next_free_oln       │1      │0.000  │
+    │mrg_html_atrids         │0      │0.000  │
+    │mrg_html_atrs           │0      │0.001  │
+    │mrg_html_typs           │7      │0.000  │
+    │mrg_html_mirror         │0      │0.000  │
+    │mrg_html_tags_and_html  │0      │0.000  │
+    └────────────────────────┴───────┴───────┘
+    ```
+
+    One can see that—under the assumption that relations are indeed order according to their
+    dependencies—that there's a 'performance cliff' between `mrg_parlnrs` and `mrg_parmirror` where
+    execution time jumps from 3ms to 2,132ms, so roughly by three orders of magnitude. This could be, but in
+    this case is certainly not directly caused by the latter having ten times as many rows as the former as
+    is shown by comparing the timings with those from further above, where we see 800 to 900 rows being
+    iterated over in a few milliseconds.
+
+    And sure enough, inspecting the definition of `mrg_parmirror` show that the view DDL contains a
+    [correlated subquery](https://www.toptal.com/sql-server/sql-database-tuning-for-developers) that will be
+    run for each single row, and—much worse—that refers to several fields that are computed with window
+    functions (`dense_rank()` and `row_number()`), which leads to the suspicion that the actual work of
+    completing a single scan of `mrg_parmirror` (1000 rows) leads to 1,000<sup>2</sup> .. 1,000<sup>n</sup>
+    table scans.
+
+  * Query plan but with a much reduced interface:
+
+    ```coffee
+    show_query_plan = ->
+      H.tabulate "query plan", db SQL"explain query plan select * from #{prefix}_wspars;"
+      rows    = []
+      counts  = {}
+      for row from db SQL"explain query plan select * from #{prefix}_wspars;"
+        continue unless /^(SCAN (?!SUBQUERY)|SEARCH)/.test row.detail
+        key =  row.detail.replace /^(\S+).*$/, '$1'
+        counts[ key ] = ( counts[ key ] ? 0 ) + 1
+        # continue unless /^(SCAN|SEARCH)/.test row.detail
+        rows.push row
+      rows.sort ( a, b ) =>
+        return +1 if a.detail > b.detail
+        return -1 if a.detail < b.detail
+        return  0
+      H.tabulate "query plan", rows
+      urge '^44873^', counts
+      return null
+    ```
+
+
+
+
+
+
+
+
+
 
 
