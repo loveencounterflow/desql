@@ -223,6 +223,10 @@ a single query. All these shortcomings will be addressed:
 
 ## To Do
 
+* **[–]** consider to use `codemirror`'s' `lezer`
+  * https://lezer-sandbox-1gurlbleb-a61.vercel.app
+  * https://lezer.codemirror.net
+  * https://news.ycombinator.com/item?id=31073800
 * **[+]** add location information
 * **[–]** fix (many) faulty location data (stop equals or precedes start line, column NR)
 * **[–]** parse multiple statements
