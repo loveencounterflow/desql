@@ -32,10 +32,10 @@ PATH                      = require 'path'
   trash_to_sql: ( cfg ) ->
     @types.validate.dbay_trash_to_sql_cfg ( cfg = { @constructor.C.defaults.dbay_trash_to_sql_cfg..., cfg..., } )
     @create_trashlib()
-    @setv '_use_dot_cmds', cfg._use_dot_cmds
+    @db.setv '_use_dot_cmds', cfg._use_dot_cmds
     { path
       overwrite } = cfg
-    iterator      = @query @_trash_select_from_statements
+    iterator      = @db.query @db._trash_select_from_statements
     if ( not cfg.path? ) or ( cfg.path is false )
       return iterator if cfg.walk
       return ( row.txt for row from iterator ).join '\n'
@@ -50,7 +50,7 @@ PATH                      = require 'path'
     { path
       overwrite } = cfg
     sql           = @trash_to_sql { walk: false, path: false, _use_dot_cmds: false, }
-    sqlt          = @constructor.new_bsqlt3_connection()
+    sqlt          = @db.constructor.new_bsqlt3_connection()
     sqlt.exec sql
     buffer        = sqlt.serialize()
     if ( not cfg.path? ) or ( cfg.path is false )
@@ -72,8 +72,8 @@ PATH                      = require 'path'
     return path if ( type = @types.type_of path ) is 'text'
     unless path is true
       throw new @db.E.DBay_internal_error '^desql/trash@1^', "expected a text or `true`, got a #{type}"
-    clasz = @constructor
-    return PATH.join clasz.C.autolocation, @rnd.get_random_filename extension
+    clasz = @db.constructor
+    return PATH.join clasz.C.autolocation, @db.rnd.get_random_filename extension
 
   #---------------------------------------------------------------------------------------------------------
   create_trashlib: ->
