@@ -16,7 +16,6 @@ whisper                   = CND.get_logger 'whisper',   badge
 echo                      = CND.echo.bind CND
 #...........................................................................................................
 types                     = require './types'
-types                     = new ( require 'intertype' ).Intertype
 GUY                       = require 'guy'
 { DBay }                  = require 'dbay'
 { SQL }                   = DBay
@@ -46,6 +45,7 @@ class @Desql extends   \
     super()
     throw new Error "^345^ configuration settings not supported" if P.length > 0
     @db = new DBay()
+    GUY.props.hide @, 'types', types
     @_procure_infrastructure()
     @_procure_infradata()
     @_compile_sql()
