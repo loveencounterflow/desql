@@ -329,6 +329,9 @@ a single query. All these shortcomings will be addressed:
       return null
     ```
 
+* **[–]** have a look at [the `sqlglot` SQL parser](https://github.com/tobymao/sqlglot); written in Python
+  but without dependencies so might be possible to include as static dependency. Notable for an article
+  about[*Semantic Diff for SQL*](https://github.com/tobymao/sqlglot/blob/main/posts/sql_diff.md)
 
 
 
