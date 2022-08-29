@@ -333,8 +333,15 @@ a single query. All these shortcomings will be addressed:
   but without dependencies so might be possible to include as static dependency. Notable for an article
   about[*Semantic Diff for SQL*](https://github.com/tobymao/sqlglot/blob/main/posts/sql_diff.md)
 
-
-
+* **[–]** consider to use https://github.com/antlr/antlr4/blob/master/doc/javascript-target.md
+  * also see
+    * https://www.antlr.org
+    * https://tomassetti.me/parsing-sql/
+    * https://news.ycombinator.com/item?id=32560039
+    * https://news.ycombinator.com/item?id=31107231
+    * https://www.jooq.org/translate
+    * https://datastation.multiprocess.io/blog/2022-04-11-sql-parsers.html
+    * https://lobste.rs/s/25ewke/parsing_sql
 
 
 
