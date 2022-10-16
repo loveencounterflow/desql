@@ -344,8 +344,14 @@ a single query. All these shortcomings will be addressed:
     * https://lobste.rs/s/25ewke/parsing_sql
 
 
-
-
+* **[–]** consider to use
+  * https://github.com/getappmap/sql-parser (*This JavaScript library parses SQLite queries to generate
+    abstract syntax tree (AST) representations of the parsed statements. It also parses some non-SQLite
+    constructs, like PostgreSQL custom operators, although non-SQLite parsing can't be 100% accurate due to
+    slight syntax differences (eg. different operator precedences) so corner cases might be parsed wrong.
+    **This parser is written against the SQLite 3 spec.***)
+    * fork of https://github.com/supplehq/sql-parser
+  * https://lib.rs/crates/sqlite3-parser
 
 
 
